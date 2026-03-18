@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ApexPrime — Sign In</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #04040a;
+      --bg2: #080812;
+      --cyan: #00f0ff;
+      --cyan-dim: #00f0ff33;
+      --orange: #ff5c1a;
+      --white: #eeeef8;
+      --muted: #6b6b8a;
+      --border: #1a1a2e;
+      --card-bg: #0a0a18;
+      --input-bg: #07070f;
+    }
+    html, body { height: 100%; }
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'Syne', sans-serif;
+      overflow: hidden;
+      cursor: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* CURSOR */
+    .cursor { position: fixed; width: 10px; height: 10px; background: var(--cyan); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); mix-blend-mode: screen; transition: width .15s, height .15s; }
+    .cursor-ring { position: fixed; width: 32px; height: 32px; border: 1px solid var(--cyan); border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); opacity: 0.35; transition: width .2s, height .2s, opacity .2s; }
+
+    /* CANVAS */
+    #bg-canvas { position: fixed; inset: 0; z-index: 0; opacity: 0.45; }
+
+    /* SPLIT LAYOUT */
+    .page {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* LEFT PANEL */
+    .left-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 48px 64px;
+      border-right: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .left-panel::before {
+      content: '';
+      position: absolute;
+      bottom: -100px; left: -100px;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(0,240,255,0.06) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .logo {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      font-size: 1.2rem;
+      letter-spacing: 0.08em;
+      text-decoration: none;
+      color: var(--white);
+    }
+    .logo span { color: var(--cyan); }
+
+    .left-content { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+    .left-content h2 {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(1.6rem, 3vw, 2.6rem);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+    .left-content h2 span { color: var(--cyan); }
+    .left-content p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 360px;
+      margin-bottom: 48px;
+    }
+
+    .stat-row { display: flex; gap: 40px; }
+    .stat { display: flex; flex-direction: column; gap: 4px; }
+    .stat-num {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--cyan);
+    }
+    .stat-label { font-size: 0.72rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+
+    .left-bottom {
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    /* RIGHT PANEL */
+    .right-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 64px;
+    }
+
+    .form-box {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      margin-bottom: 36px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tab {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: none;
+      border: none;
+      padding: 12px 0;
+      margin-right: 32px;
+      cursor: none;
+      position: relative;
+      transition: color 0.2s;
+    }
+    .tab::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; left: 0;
+      width: 100%; height: 1px;
+      background: var(--cyan);
+      transform: scaleX(0);
+      transition: transform 0.3s;
+    }
+    .tab.active { color: var(--white); }
+    .tab.active::after { transform: scaleX(1); }
+
+    /* FORM */
+    .form-panel { display: none; }
+    .form-panel.active { display: flex; flex-direction: column; gap: 18px; }
+
+    .field { display: flex; flex-direction: column; gap: 8px; }
+    .field label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .field input {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      color: var(--white);
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem;
+      padding: 14px 16px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      width: 100%;
+    }
+    .field input::placeholder { color: var(--muted); }
+    .field input:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 3px var(--cyan-dim);
+    }
+
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    .forgot {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-decoration: none;
+      text-align: right;
+      display: block;
+      margin-top: -8px;
+      transition: color 0.2s;
+    }
+    .forgot:hover { color: var(--cyan); }
+
+    .btn-submit {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--cyan);
+      border: none;
+      padding: 16px;
+      width: 100%;
+      cursor: none;
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+      transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+      margin-top: 6px;
+    }
+    .btn-submit:hover {
+      opacity: 0.88;
+      transform: translateY(-1px);
+      box-shadow: 0 0 32px rgba(0,240,255,0.35);
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    .btn-oauth {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--white);
+      font-family: 'Syne', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 13px;
+      width: 100%;
+      cursor: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-oauth:hover { border-color: var(--muted); background: #0d0d1e; }
+
+    .terms {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.6;
+    }
+    .terms a { color: var(--cyan); text-decoration: none; }
+
+    /* NOISE */
+    body::after { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); opacity: 0.025; pointer-events: none; z-index: 9997; }
+
+    @media (max-width: 768px) {
+      body { overflow: auto; }
+      .page { grid-template-columns: 1fr; height: auto; }
+      .left-panel { display: none; }
+      .right-panel { padding: 60px 28px; min-height: 100vh; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+  <canvas id="bg-canvas"></canvas>
+
+  <div class="page">
+
+    <!-- LEFT -->
+    <div class="left-panel">
+      <a href="index.html" class="logo">APEX<span>PRIME</span></a>
+      <div class="left-content">
+        <h2>Your AI<br><span>Co-Founder</span><br>Awaits.</h2>
+        <p>Describe your startup. Our agents build the website, pitch deck, 3D models, and market analysis — all in minutes.</p>
+        <div class="stat-row">
+          <div class="stat"><span class="stat-num">500+</span><span class="stat-label">Startups Built</span></div>
+          <div class="stat"><span class="stat-num">12min</span><span class="stat-label">Avg. Launch Time</span></div>
+          <div class="stat"><span class="stat-num">8</span><span class="stat-label">AI Agents</span></div>
+        </div>
+      </div>
+      <div class="left-bottom">© 2025 ApexPrime — All rights reserved</div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right-panel">
+      <div class="form-box">
+
+        <div class="tabs">
+          <button class="tab active" onclick="switchTab('login')">Sign In</button>
+          <button class="tab" onclick="switchTab('signup')">Create Account</button>
+        </div>
+
+        <!-- LOGIN -->
+        <div class="form-panel active" id="login">
+          <div class="field">
+            <label>Email Address</label>
+            <input type="email" placeholder="you@example.com" />
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input type="password" placeholder="••••••••••" />
+          </div>
+          <a href="#" class="forgot">Forgot password?</a>
+          <button class="btn-submit" onclick="window.location.href='dashboard.html'">Sign In →</button>
+          <div class="divider">or continue with</div>
+          <button class="btn-oauth">
+            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Continue with Google
+          </button>
+        </div>
+
+        <!-- SIGNUP -->
+        <div class="form-panel" id="signup">
+          <div class="field-row">
+            <div class="field"><label>First Name</label><input type="text" placeholder="Alex" /></div>
+            <div class="field"><label>Last Name</label><input type="text" placeholder="Chen" /></div>
+          </div>
+          <div class="field"><label>Email Address</label><input type="email" placeholder="you@example.com" /></div>
+          <div class="field"><label>Password</label><input type="password" placeholder="Min. 8 characters" /></div>
+          <button class="btn-submit" onclick="window.location.href='dashboard.html'">Create Account →</button>
+          <div class="divider">or continue with</div>
+          <button class="btn-oauth">
+            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Continue with Google
+          </button>
+          <p class="terms">By creating an account you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // CURSOR
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx=0,my=0,rx=0,ry=0;
+    document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx+'px';cursor.style.top=my+'px';});
+    function animRing(){rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animRing);}
+    animRing();
+    document.querySelectorAll('a,button,input').forEach(el=>{el.addEventListener('mouseenter',()=>{cursor.style.width='5px';cursor.style.height='5px';ring.style.width='44px';ring.style.height='44px';});el.addEventListener('mouseleave',()=>{cursor.style.width='10px';cursor.style.height='10px';ring.style.width='32px';ring.style.height='32px';});});
+
+    // TABS
+    function switchTab(t) {
+      document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active', (i===0&&t==='login')||(i===1&&t==='signup')));
+      document.querySelectorAll('.form-panel').forEach(el=>el.classList.remove('active'));
+      document.getElementById(t).classList.add('active');
+    }
+
+    // CANVAS
+    const canvas=document.getElementById('bg-canvas');
+    const ctx=canvas.getContext('2d');
+    let W,H;
+    function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+    resize(); window.addEventListener('resize',resize);
+    let t=0;
+    const pts=Array.from({length:60},()=>({x:Math.random()*1920,y:Math.random()*1080,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25}));
+    function draw(){
+      ctx.clearRect(0,0,W,H); t+=.004;
+      const gs=80;
+      ctx.strokeStyle='rgba(0,240,255,0.035)'; ctx.lineWidth=1;
+      for(let x=0;x<W;x+=gs){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+      for(let y=0;y<H;y+=gs){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+      pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;ctx.beginPath();ctx.arc(p.x,p.y,1,0,Math.PI*2);ctx.fillStyle='rgba(0,240,255,0.25)';ctx.fill();});
+      for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<110){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle=`rgba(0,240,255,${.04*(1-d/110)})`;ctx.lineWidth=.5;ctx.stroke();}}
+      requestAnimationFrame(draw);
+    }
+    draw();
+  </script>
+</body>
+</html>
