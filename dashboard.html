@@ -32,7 +32,15 @@
     .nav-badge{margin-left:auto;background:var(--cyan);color:var(--bg);font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:20px;}
     .sidebar-bottom{padding:20px 16px;border-top:1px solid var(--border);}
     .user-row{display:flex;align-items:center;gap:12px;}
-    .avatar{width:34px;height:34px;background:linear-gradient(135deg,var(--cyan),#006fff);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:var(--bg);flex-shrink:0;}
+    .avatar{width:38px;height:38px;background:linear-gradient(135deg,var(--cyan),#006fff);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:var(--bg);flex-shrink:0;overflow:hidden;border:2px solid var(--cyan-dim);}
+    .avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+    .topbar-user{display:flex;align-items:center;gap:10px;padding:6px 12px;background:var(--card-bg);border:1px solid var(--border);}
+    .topbar-avatar{width:30px;height:30px;border-radius:50%;overflow:hidden;flex-shrink:0;border:1px solid var(--cyan-dim);}
+    .topbar-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+    .topbar-avatar-initials{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),#006fff);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:var(--bg);}
+    .topbar-user-info{display:flex;flex-direction:column;}
+    .topbar-user-name{font-size:.78rem;font-weight:600;color:var(--white);line-height:1.2;}
+    .topbar-user-email{font-size:.65rem;color:var(--muted);}
     .user-info{flex:1;overflow:hidden;}
     .user-name{font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .user-plan{font-size:.65rem;color:var(--cyan);letter-spacing:.08em;text-transform:uppercase;}
@@ -157,6 +165,13 @@
       </div>
       <div class="topbar-right">
         <div class="notif-btn" style="width:36px;height:36px;background:var(--card-bg);border:1px solid var(--border);color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:none;">🔔</div>
+        <div class="topbar-user" id="topbar-user">
+          <div id="topbar-avatar-wrap"></div>
+          <div class="topbar-user-info">
+            <div class="topbar-user-name" id="topbar-name">—</div>
+            <div class="topbar-user-email" id="topbar-email">—</div>
+          </div>
+        </div>
         <button class="topbar-logout" onclick="ApexAuth.logout()">↩ Sign Out</button>
         <button class="topbar-btn" onclick="document.getElementById('proj-name-input').focus()">+ New Project</button>
       </div>
@@ -266,11 +281,30 @@
       const user = await ApexAuth.getUser();
       if (user) {
         const meta = user.user_metadata || {};
-        const name = meta.full_name || user.email.split('@')[0];
-        const avatar = meta.avatar || name.slice(0,2).toUpperCase();
-        document.getElementById('user-avatar').textContent = avatar;
+        const name = meta.full_name || meta.name || user.email.split('@')[0];
+        const email = user.email || '';
+        const picture = meta.avatar_url || meta.picture || null;
+        const initials = name.slice(0,2).toUpperCase();
+
+        // Sidebar avatar
+        const sideAvatar = document.getElementById('user-avatar');
+        if (picture) {
+          sideAvatar.innerHTML = `<img src="${picture}" alt="${name}" referrerpolicy="no-referrer">`;
+        } else {
+          sideAvatar.textContent = initials;
+        }
         document.getElementById('user-name').textContent = name;
         document.getElementById('user-plan').textContent = (meta.plan || 'Free') + ' Plan';
+
+        // Topbar user
+        document.getElementById('topbar-name').textContent = name;
+        document.getElementById('topbar-email').textContent = email;
+        const wrap = document.getElementById('topbar-avatar-wrap');
+        if (picture) {
+          wrap.innerHTML = `<div class="topbar-avatar"><img src="${picture}" alt="${name}" referrerpolicy="no-referrer"></div>`;
+        } else {
+          wrap.innerHTML = `<div class="topbar-avatar-initials">${initials}</div>`;
+        }
       }
 
       // Projects
