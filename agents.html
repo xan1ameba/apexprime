@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ApexPrime — AI Agents</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="apexauth.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #04040a; --bg2: #06060f; --cyan: #00f0ff; --cyan-dim: #00f0ff22;
+      --orange: #ff5c1a; --green: #00ff88; --white: #eeeef8;
+      --muted: #6b6b8a; --border: #141428; --card-bg: #08081a; --sidebar-w: 240px;
+    }
+    body { background: var(--bg); color: var(--white); font-family: 'Syne', sans-serif; min-height: 100vh; display: flex; cursor: none; }
+    .cursor{position:fixed;width:10px;height:10px;background:var(--cyan);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen;transition:width .15s,height .15s;}
+    .cursor-ring{position:fixed;width:30px;height:30px;border:1px solid var(--cyan);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);opacity:.3;transition:width .2s,height .2s;}
+
+    /* SIDEBAR */
+    .sidebar{width:var(--sidebar-w);min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:50;}
+    .sidebar-logo{padding:28px 24px;border-bottom:1px solid var(--border);font-family:'Orbitron',monospace;font-weight:900;font-size:1rem;letter-spacing:.08em;text-decoration:none;color:var(--white);display:block;}
+    .sidebar-logo span{color:var(--cyan);}
+    .sidebar-nav{flex:1;padding:20px 12px;display:flex;flex-direction:column;gap:4px;}
+    .nav-section-label{font-size:.6rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);padding:14px 12px 6px;}
+    .nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:2px;font-size:.82rem;font-weight:500;color:var(--muted);text-decoration:none;cursor:none;transition:background .15s,color .15s;position:relative;}
+    .nav-item:hover{background:rgba(255,255,255,.03);color:var(--white);}
+    .nav-item.active{background:rgba(0,240,255,.06);color:var(--cyan);}
+    .nav-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--cyan);}
+    .nav-icon{width:16px;text-align:center;font-size:1rem;}
+    .sidebar-bottom{padding:20px 16px;border-top:1px solid var(--border);}
+    .user-row{display:flex;align-items:center;gap:12px;}
+    .avatar{width:38px;height:38px;background:linear-gradient(135deg,var(--cyan),#006fff);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:var(--bg);flex-shrink:0;overflow:hidden;border:2px solid var(--cyan-dim);}
+    .avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+    .user-info{flex:1;overflow:hidden;}
+    .user-name{font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .user-plan{font-size:.65rem;color:var(--cyan);letter-spacing:.08em;text-transform:uppercase;}
+    .logout-btn{background:rgba(255,92,26,.06);border:1px solid rgba(255,92,26,.3);font-family:'Syne',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--orange);cursor:none;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 14px;width:100%;transition:background .15s;margin-top:8px;}
+    .logout-btn:hover{background:rgba(255,92,26,.14);}
+
+    /* MAIN */
+    .main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;}
+    .topbar{height:64px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 36px;background:rgba(4,4,10,.7);backdrop-filter:blur(12px);position:sticky;top:0;z-index:40;}
+    .topbar-left h1{font-family:'Orbitron',monospace;font-size:.9rem;font-weight:700;letter-spacing:.08em;}
+    .topbar-left p{font-size:.72rem;color:var(--muted);margin-top:2px;}
+    .topbar-right{display:flex;align-items:center;gap:12px;}
+    .topbar-user{display:flex;align-items:center;gap:10px;padding:6px 12px;background:var(--card-bg);border:1px solid var(--border);}
+    .topbar-avatar{width:30px;height:30px;border-radius:50%;overflow:hidden;border:1px solid var(--cyan-dim);}
+    .topbar-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+    .topbar-avatar-initials{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),#006fff);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:var(--bg);}
+    .topbar-user-name{font-size:.78rem;font-weight:600;color:var(--white);}
+    .topbar-user-email{font-size:.65rem;color:var(--muted);}
+    .topbar-logout{font-family:'Syne',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--orange);background:rgba(255,92,26,.08);border:1px solid rgba(255,92,26,.3);padding:9px 18px;cursor:none;transition:background .2s;display:flex;align-items:center;gap:7px;}
+    .topbar-logout:hover{background:rgba(255,92,26,.16);}
+
+    /* CONTENT */
+    .content{padding:36px;display:flex;flex-direction:column;gap:28px;}
+
+    /* AGENT SELECTOR */
+    .agent-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+    .agent-tab{background:var(--card-bg);border:1px solid var(--border);padding:20px;cursor:none;transition:all .2s;position:relative;overflow:hidden;text-align:left;}
+    .agent-tab::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--border);transition:background .2s;}
+    .agent-tab:hover{border-color:rgba(0,240,255,.2);background:#0a0a1e;}
+    .agent-tab.active{border-color:var(--cyan);background:rgba(0,240,255,.04);}
+    .agent-tab.active::before{background:linear-gradient(90deg,var(--cyan),transparent);}
+    .agent-tab-icon{font-size:1.4rem;margin-bottom:10px;display:block;}
+    .agent-tab-name{font-family:'Orbitron',monospace;font-size:.72rem;font-weight:600;letter-spacing:.05em;display:block;margin-bottom:4px;}
+    .agent-tab-desc{font-size:.68rem;color:var(--muted);line-height:1.4;}
+    .agent-tab-badge{position:absolute;top:12px;right:12px;font-size:.55rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;background:rgba(0,240,255,.1);border:1px solid rgba(0,240,255,.3);color:var(--cyan);}
+
+    /* WORKSPACE */
+    .workspace{display:grid;grid-template-columns:1fr 1fr;gap:20px;min-height:500px;}
+
+    /* INPUT PANEL */
+    .input-panel{background:var(--card-bg);border:1px solid var(--border);display:flex;flex-direction:column;}
+    .panel-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+    .panel-title{font-family:'Orbitron',monospace;font-size:.78rem;font-weight:600;letter-spacing:.05em;}
+    .panel-badge{font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 10px;color:var(--cyan);background:rgba(0,240,255,.08);border:1px solid rgba(0,240,255,.2);}
+    .panel-body{padding:24px;flex:1;display:flex;flex-direction:column;gap:16px;}
+    .field{display:flex;flex-direction:column;gap:7px;}
+    .field label{font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+    .field input,.field textarea,.field select{background:#05050e;border:1px solid var(--border);color:var(--white);font-family:'Syne',sans-serif;font-size:.85rem;padding:11px 14px;outline:none;transition:border-color .2s;width:100%;}
+    .field input:focus,.field textarea:focus{border-color:var(--cyan);}
+    .field textarea{resize:none;height:80px;}
+    .field select{appearance:none;cursor:none;}
+    .btn-run{font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--bg);background:var(--cyan);border:none;padding:14px;width:100%;cursor:none;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));transition:opacity .2s,box-shadow .2s;margin-top:auto;}
+    .btn-run:hover{opacity:.88;box-shadow:0 0 28px rgba(0,240,255,.3);}
+    .btn-run:disabled{opacity:.4;}
+
+    /* OUTPUT PANEL */
+    .output-panel{background:var(--card-bg);border:1px solid var(--border);display:flex;flex-direction:column;}
+    .output-body{padding:24px;flex:1;overflow-y:auto;max-height:600px;}
+
+    /* LOADING STATE */
+    .loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;gap:16px;}
+    .loading-ring{width:48px;height:48px;border:2px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin 0.8s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loading-text{font-size:.8rem;color:var(--muted);letter-spacing:.05em;}
+    .loading-steps{display:flex;flex-direction:column;gap:8px;margin-top:8px;width:100%;max-width:280px;}
+    .loading-step{font-size:.7rem;color:var(--muted);display:flex;align-items:center;gap:8px;}
+    .loading-step.done{color:var(--green);}
+    .loading-step.active{color:var(--cyan);}
+    .step-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0;}
+    .step-dot.active{animation:pulse 1s infinite;}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+    /* EMPTY STATE */
+    .empty-output{display:flex;flex-direction:column;align-items:center;justify-content:center;height:240px;gap:12px;text-align:center;}
+    .empty-output-icon{font-size:2.5rem;opacity:.3;}
+    .empty-output-text{font-size:.8rem;color:var(--muted);}
+
+    /* RESULTS */
+    /* Market Analysis */
+    .result-section{margin-bottom:20px;}
+    .result-label{font-size:.62rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--cyan);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+    .result-label::after{content:'';flex:1;height:1px;background:var(--border);}
+    .verdict-badge{display:inline-block;font-family:'Orbitron',monospace;font-size:.75rem;font-weight:700;padding:8px 20px;letter-spacing:.1em;text-transform:uppercase;}
+    .verdict-badge.STRONG{color:var(--green);background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.3);}
+    .verdict-badge.MODERATE{color:var(--orange);background:rgba(255,92,26,.08);border:1px solid rgba(255,92,26,.3);}
+    .verdict-badge.WEAK{color:#ff4444;background:rgba(255,68,68,.08);border:1px solid rgba(255,68,68,.3);}
+    .market-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+    .market-box{background:var(--bg);border:1px solid var(--border);padding:14px;text-align:center;}
+    .market-box-val{font-family:'Orbitron',monospace;font-size:.8rem;font-weight:700;color:var(--cyan);margin-bottom:4px;}
+    .market-box-label{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;}
+    .tag-list{display:flex;flex-wrap:wrap;gap:7px;}
+    .tag{font-size:.68rem;padding:4px 10px;background:rgba(255,255,255,.03);border:1px solid var(--border);color:var(--muted);}
+    .competitor-row{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:.78rem;}
+    .competitor-row:last-child{border-bottom:none;}
+    .comp-name{font-weight:600;min-width:100px;color:var(--white);}
+    .comp-good{color:var(--green);font-size:.72rem;}
+    .comp-bad{color:var(--orange);font-size:.72rem;}
+    .summary-text{font-size:.82rem;color:var(--muted);line-height:1.65;}
+
+    /* Pitch Deck */
+    .slide-grid{display:flex;flex-direction:column;gap:10px;}
+    .slide-card{background:var(--bg);border:1px solid var(--border);padding:16px;position:relative;transition:border-color .2s;}
+    .slide-card:hover{border-color:rgba(0,240,255,.2);}
+    .slide-num{font-family:'Orbitron',monospace;font-size:.6rem;color:var(--cyan);margin-bottom:6px;letter-spacing:.1em;}
+    .slide-title-badge{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px;}
+    .slide-heading{font-size:.88rem;font-weight:600;margin-bottom:6px;}
+    .slide-content{font-size:.75rem;color:var(--muted);line-height:1.5;}
+    .slide-key{font-size:.7rem;color:var(--cyan);margin-top:8px;font-style:italic;}
+
+    /* Brand Kit */
+    .color-strip{display:flex;gap:8px;margin-bottom:16px;}
+    .color-swatch{flex:1;height:64px;border-radius:2px;position:relative;cursor:none;}
+    .color-swatch-label{position:absolute;bottom:-20px;left:0;right:0;text-align:center;font-size:.6rem;color:var(--muted);}
+    .brand-font-row{display:flex;gap:12px;margin-bottom:16px;}
+    .font-card{flex:1;background:var(--bg);border:1px solid var(--border);padding:14px;}
+    .font-name{font-size:.72rem;font-weight:700;color:var(--cyan);margin-bottom:4px;}
+    .font-preview{font-size:1.2rem;}
+    .font-label{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:4px;}
+    .social-row{display:flex;flex-direction:column;gap:8px;}
+    .social-item{background:var(--bg);border:1px solid var(--border);padding:12px 14px;}
+    .social-platform{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--cyan);margin-bottom:4px;}
+    .social-text{font-size:.78rem;color:var(--muted);}
+
+    /* Website */
+    .website-preview{width:100%;height:400px;border:1px solid var(--border);background:#fff;}
+    .website-actions{display:flex;gap:10px;margin-top:12px;}
+    .btn-action{font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:9px 18px;cursor:none;border:1px solid var(--border);color:var(--muted);background:transparent;transition:all .2s;flex:1;text-align:center;}
+    .btn-action:hover{color:var(--white);border-color:var(--muted);}
+    .btn-action.primary{color:var(--bg);background:var(--cyan);border-color:var(--cyan);}
+    .btn-action.primary:hover{opacity:.88;}
+
+    /* ERROR */
+    .error-box{background:rgba(255,92,26,.07);border:1px solid rgba(255,92,26,.3);padding:16px;color:var(--orange);font-size:.82rem;line-height:1.5;}
+
+    body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");opacity:.02;pointer-events:none;z-index:9997;}
+    @media(max-width:1100px){.workspace{grid-template-columns:1fr}.agent-tabs{grid-template-columns:1fr 1fr}}
+    @media(max-width:900px){.sidebar{display:none}.main{margin-left:0}.content{padding:20px}.agent-tabs{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <a href="index.html" class="sidebar-logo">APEX<span>PRIME</span></a>
+    <nav class="sidebar-nav">
+      <span class="nav-section-label">Workspace</span>
+      <a href="dashboard.html" class="nav-item"><span class="nav-icon">⚡</span> Dashboard</a>
+      <a href="myprojects.html" class="nav-item"><span class="nav-icon">🚀</span> My Projects</a>
+      <a href="agents.html" class="nav-item active"><span class="nav-icon">🤖</span> AI Agents</a>
+      <span class="nav-section-label">Tools</span>
+      <a href="agents.html#website" class="nav-item"><span class="nav-icon">🌐</span> Website Builder</a>
+      <a href="agents.html#market" class="nav-item"><span class="nav-icon">📊</span> Market Analysis</a>
+      <a href="agents.html#pitch" class="nav-item"><span class="nav-icon">🎯</span> Pitch Deck</a>
+      <a href="agents.html#brand" class="nav-item"><span class="nav-icon">✦</span> Brand Kit</a>
+      <span class="nav-section-label">Account</span>
+      <a href="#" class="nav-item"><span class="nav-icon">⚙</span> Settings</a>
+      <button class="logout-btn" onclick="ApexAuth.logout()">↩ &nbsp;Sign Out</button>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="user-row">
+        <div class="avatar" id="user-avatar">?</div>
+        <div class="user-info">
+          <div class="user-name" id="user-name">Loading…</div>
+          <div class="user-plan" id="user-plan">—</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1>AI Agents</h1>
+        <p>Powered by Gemini 2.0 Flash via n8n</p>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-user">
+          <div id="topbar-avatar-wrap"></div>
+          <div>
+            <div class="topbar-user-name" id="topbar-name">—</div>
+            <div class="topbar-user-email" id="topbar-email">—</div>
+          </div>
+        </div>
+        <button class="topbar-logout" onclick="ApexAuth.logout()">↩ Sign Out</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- AGENT SELECTOR TABS -->
+      <div class="agent-tabs">
+        <button class="agent-tab active" onclick="selectAgent('market')" id="tab-market">
+          <span class="agent-tab-badge">GEMINI</span>
+          <span class="agent-tab-icon">📊</span>
+          <span class="agent-tab-name">Market Analysis</span>
+          <span class="agent-tab-desc">TAM/SAM/SOM, competitors, trends & go-to-market</span>
+        </button>
+        <button class="agent-tab" onclick="selectAgent('pitch')" id="tab-pitch">
+          <span class="agent-tab-badge">GEMINI</span>
+          <span class="agent-tab-icon">🎯</span>
+          <span class="agent-tab-name">Pitch Deck</span>
+          <span class="agent-tab-desc">10-slide investor deck with narrative & financials</span>
+        </button>
+        <button class="agent-tab" onclick="selectAgent('brand')" id="tab-brand">
+          <span class="agent-tab-badge">GEMINI</span>
+          <span class="agent-tab-icon">✦</span>
+          <span class="agent-tab-name">Brand Kit</span>
+          <span class="agent-tab-desc">Colors, fonts, logo concept & brand voice</span>
+        </button>
+        <button class="agent-tab" onclick="selectAgent('website')" id="tab-website">
+          <span class="agent-tab-badge">GEMINI</span>
+          <span class="agent-tab-icon">🌐</span>
+          <span class="agent-tab-name">Website Generator</span>
+          <span class="agent-tab-desc">Full HTML landing page, responsive & production-ready</span>
+        </button>
+      </div>
+
+      <!-- WORKSPACE -->
+      <div class="workspace">
+
+        <!-- INPUT PANEL -->
+        <div class="input-panel">
+          <div class="panel-header">
+            <span class="panel-title" id="input-title">Market Analysis</span>
+            <span class="panel-badge" id="input-badge">INPUT</span>
+          </div>
+          <div class="panel-body" id="input-body">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+        <!-- OUTPUT PANEL -->
+        <div class="output-panel">
+          <div class="panel-header">
+            <span class="panel-title">Output</span>
+            <span class="panel-badge" id="output-status">READY</span>
+          </div>
+          <div class="output-body" id="output-body">
+            <div class="empty-output">
+              <div class="empty-output-icon">🤖</div>
+              <div class="empty-output-text">Fill in the form and run the agent<br>to see results here</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // ── WEBHOOKS ──
+    const WEBHOOKS = {
+      market:  'https://xan1ameba.app.n8n.cloud/webhook/market-analysis',
+      pitch:   'https://xan1ameba.app.n8n.cloud/webhook/pitch-deck',
+      brand:   'https://xan1ameba.app.n8n.cloud/webhook/brand-kit',
+      website: 'https://xan1ameba.app.n8n.cloud/webhook/website-generator'
+    };
+
+    // ── CURSOR ──
+    const cursor=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+    let mx=0,my=0,rx=0,ry=0;
+    document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx+'px';cursor.style.top=my+'px';});
+    function animRing(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animRing);} animRing();
+    function addHover(el){el.addEventListener('mouseenter',()=>{cursor.style.width='5px';cursor.style.height='5px';ring.style.width='42px';ring.style.height='42px';});el.addEventListener('mouseleave',()=>{cursor.style.width='10px';cursor.style.height='10px';ring.style.width='30px';ring.style.height='30px';});}
+    document.querySelectorAll('a,button,input,textarea,select').forEach(addHover);
+
+    // ── AGENT FORMS ──
+    const FORMS = {
+      market: {
+        title: 'Market Analysis',
+        fields: [
+          { id: 'description', label: 'Business Idea', type: 'textarea', placeholder: 'Describe your startup idea in detail…' },
+          { id: 'industry', label: 'Industry', type: 'input', placeholder: 'e.g. SaaS, FinTech, HealthTech, E-commerce…' }
+        ],
+        btnText: 'Run Market Analysis →'
+      },
+      pitch: {
+        title: 'Pitch Deck Generator',
+        fields: [
+          { id: 'name', label: 'Startup Name', type: 'input', placeholder: 'e.g. EcoWear' },
+          { id: 'description', label: 'Business Description', type: 'textarea', placeholder: 'What does your startup do?' },
+          { id: 'industry', label: 'Industry', type: 'input', placeholder: 'e.g. Fashion, SaaS, HealthTech…' },
+          { id: 'target_market', label: 'Target Market', type: 'input', placeholder: 'e.g. Gen Z consumers in urban areas' }
+        ],
+        btnText: 'Generate Pitch Deck →'
+      },
+      brand: {
+        title: 'Brand Kit Generator',
+        fields: [
+          { id: 'name', label: 'Brand Name', type: 'input', placeholder: 'e.g. EcoWear' },
+          { id: 'description', label: 'What you do', type: 'textarea', placeholder: 'Describe your product or service…' },
+          { id: 'industry', label: 'Industry', type: 'input', placeholder: 'e.g. Sustainable Fashion' },
+          { id: 'target_audience', label: 'Target Audience', type: 'input', placeholder: 'e.g. Eco-conscious millennials' },
+          { id: 'vibe', label: 'Brand Vibe', type: 'input', placeholder: 'e.g. Modern, minimal, trustworthy, bold…' }
+        ],
+        btnText: 'Generate Brand Kit →'
+      },
+      website: {
+        title: 'Website Generator',
+        fields: [
+          { id: 'name', label: 'Startup Name', type: 'input', placeholder: 'e.g. EcoWear' },
+          { id: 'description', label: 'Description', type: 'textarea', placeholder: 'What does your startup do? Who is it for?' },
+          { id: 'industry', label: 'Industry', type: 'input', placeholder: 'e.g. Sustainable Fashion' },
+          { id: 'primary_color', label: 'Primary Color (hex)', type: 'input', placeholder: 'e.g. #00f0ff or "dark green"' },
+          { id: 'style', label: 'Design Style', type: 'input', placeholder: 'e.g. Modern dark, clean minimal, bold colorful…' }
+        ],
+        btnText: 'Generate Website →'
+      }
+    };
+
+    let currentAgent = 'market';
+
+    function selectAgent(agent) {
+      currentAgent = agent;
+      document.querySelectorAll('.agent-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('tab-' + agent).classList.add('active');
+      renderForm(agent);
+      setOutput('<div class="empty-output"><div class="empty-output-icon">🤖</div><div class="empty-output-text">Fill in the form and run the agent<br>to see results here</div></div>');
+      document.getElementById('output-status').textContent = 'READY';
+    }
+
+    function renderForm(agent) {
+      const form = FORMS[agent];
+      document.getElementById('input-title').textContent = form.title;
+      const body = document.getElementById('input-body');
+      body.innerHTML = form.fields.map(f => `
+        <div class="field">
+          <label>${f.label}</label>
+          ${f.type === 'textarea'
+            ? `<textarea id="f-${f.id}" placeholder="${f.placeholder}"></textarea>`
+            : `<input type="text" id="f-${f.id}" placeholder="${f.placeholder}" />`}
+        </div>`).join('') +
+        `<button class="btn-run" id="run-btn" onclick="runAgent()">${form.btnText}</button>`;
+      body.querySelectorAll('input,textarea,button').forEach(addHover);
+    }
+
+    function setOutput(html) { document.getElementById('output-body').innerHTML = html; }
+    function setStatus(text, color='var(--cyan)') {
+      const el = document.getElementById('output-status');
+      el.textContent = text;
+      el.style.color = color;
+    }
+
+    // ── RUN AGENT ──
+    async function runAgent() {
+      const form = FORMS[currentAgent];
+      const payload = {};
+      for (const f of form.fields) {
+        const val = document.getElementById('f-' + f.id)?.value?.trim();
+        if (!val) { alert('Please fill in: ' + f.label); return; }
+        payload[f.id] = val;
+      }
+
+      const btn = document.getElementById('run-btn');
+      btn.disabled = true;
+      btn.textContent = 'Running…';
+      setStatus('RUNNING', 'var(--cyan)');
+      showLoading();
+
+      try {
+        const res = await fetch(WEBHOOKS[currentAgent], {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ body: payload })
+        });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        const data = await res.json();
+
+        if (data.success && data.data) {
+          renderResult(currentAgent, data.data);
+          setStatus('DONE', 'var(--green)');
+        } else {
+          throw new Error(data.error || 'No data returned from agent');
+        }
+      } catch (err) {
+        setOutput(`<div class="error-box">⚠ Agent error: ${err.message}<br><br>Make sure your n8n workflow is active and the Gemini API key is set correctly.</div>`);
+        setStatus('ERROR', 'var(--orange)');
+      }
+
+      btn.disabled = false;
+      btn.textContent = form.btnText;
+    }
+
+    function showLoading() {
+      const steps = {
+        market:  ['Connecting to n8n…', 'Calling Gemini AI…', 'Analyzing market data…', 'Building report…'],
+        pitch:   ['Connecting to n8n…', 'Calling Gemini AI…', 'Writing slide content…', 'Building deck…'],
+        brand:   ['Connecting to n8n…', 'Calling Gemini AI…', 'Generating brand identity…', 'Building kit…'],
+        website: ['Connecting to n8n…', 'Calling Gemini AI…', 'Writing HTML & CSS…', 'Finalizing site…']
+      };
+      const s = steps[currentAgent];
+      setOutput(`<div class="loading-state">
+        <div class="loading-ring"></div>
+        <div class="loading-text">Agent is working…</div>
+        <div class="loading-steps">
+          ${s.map((step, i) => `<div class="loading-step active" id="lstep-${i}"><div class="step-dot active"></div>${step}</div>`).join('')}
+        </div>
+      </div>`);
+      // Animate steps
+      s.forEach((_, i) => setTimeout(() => {
+        const el = document.getElementById('lstep-' + i);
+        if (el) { el.classList.remove('active'); el.classList.add('done'); el.querySelector('.step-dot').classList.remove('active'); }
+      }, (i + 1) * 1200));
+    }
+
+    // ── RENDER RESULTS ──
+    function renderResult(agent, data) {
+      if (agent === 'market') renderMarket(data);
+      else if (agent === 'pitch') renderPitch(data);
+      else if (agent === 'brand') renderBrand(data);
+      else if (agent === 'website') renderWebsite(data);
+    }
+
+    function renderMarket(d) {
+      setOutput(`
+        <div class="result-section">
+          <div class="result-label">Executive Summary</div>
+          <p class="summary-text">${d.executive_summary || '—'}</p>
+        </div>
+        <div class="result-section">
+          <div class="result-label">Verdict</div>
+          <span class="verdict-badge ${d.verdict || 'MODERATE'}">${d.verdict || 'MODERATE'}</span>
+          <p class="summary-text" style="margin-top:10px">${d.verdict_reason || ''}</p>
+        </div>
+        <div class="result-section">
+          <div class="result-label">Market Size</div>
+          <div class="market-grid">
+            <div class="market-box"><div class="market-box-val">${d.market_size?.tam || '—'}</div><div class="market-box-label">TAM</div></div>
+            <div class="market-box"><div class="market-box-val">${d.market_size?.sam || '—'}</div><div class="market-box-label">SAM</div></div>
+            <div class="market-box"><div class="market-box-val">${d.market_size?.som || '—'}</div><div class="market-box-label">SOM</div></div>
+          </div>
+          <p class="summary-text">CAGR: <strong style="color:var(--cyan)">${d.growth_rate || '—'}</strong></p>
+        </div>
+        <div class="result-section">
+          <div class="result-label">Competitors</div>
+          ${(d.competitors || []).map(c => `
+            <div class="competitor-row">
+              <span class="comp-name">${c.name}</span>
+              <span class="comp-good">✓ ${c.strength}</span>
+              <span class="comp-bad">✗ ${c.weakness}</span>
+            </div>`).join('')}
+        </div>
+        <div class="result-section">
+          <div class="result-label">Trends</div>
+          <div class="tag-list">${(d.trends || []).map(t => `<span class="tag">${t}</span>`).join('')}</div>
+        </div>
+        <div class="result-section">
+          <div class="result-label">Opportunities</div>
+          <div class="tag-list">${(d.opportunities || []).map(t => `<span class="tag" style="border-color:rgba(0,255,136,.2);color:var(--green)">${t}</span>`).join('')}</div>
+        </div>
+        <div class="result-section">
+          <div class="result-label">Risks</div>
+          <div class="tag-list">${(d.risks || []).map(t => `<span class="tag" style="border-color:rgba(255,92,26,.2);color:var(--orange)">${t}</span>`).join('')}</div>
+        </div>
+        <div class="result-section">
+          <div class="result-label">Go-To-Market Strategy</div>
+          <p class="summary-text">${d.go_to_market || '—'}</p>
+        </div>`);
+    }
+
+    function renderPitch(d) {
+      setOutput(`
+        <div class="result-section">
+          <div class="result-label">Startup</div>
+          <p style="font-family:'Orbitron',monospace;font-size:1rem;font-weight:700;margin-bottom:6px">${d.startup_name || ''}</p>
+          <p class="summary-text" style="color:var(--cyan);font-style:italic">"${d.tagline || ''}"</p>
+        </div>
+        <div class="result-section">
+          <div class="result-label">Investor Hook</div>
+          <p class="summary-text" style="color:var(--green)">${d.investor_hook || ''}</p>
+        </div>
+        <div class="result-section">
+          <div class="result-label">Slides</div>
+          <div class="slide-grid">
+            ${(d.slides || []).map(s => `
+              <div class="slide-card">
+                <div class="slide-num">SLIDE ${s.slide}</div>
+                <div class="slide-title-badge">${s.title}</div>
+                <div class="slide-heading">${s.heading}</div>
+                <div class="slide-content">${s.content}</div>
+                ${s.key_point ? `<div class="slide-key">💡 ${s.key_point}</div>` : ''}
+              </div>`).join('')}
+          </div>
+        </div>`);
+    }
+
+    function renderBrand(d) {
+      const colors = d.colors || {};
+      const colorKeys = ['primary', 'secondary', 'accent', 'background', 'text'];
+      setOutput(`
+        <div class="result-section">
+          <div class="result-label">Brand Identity</div>
+          <p style="font-family:'Orbitron',monospace;font-size:1rem;font-weight:700;margin-bottom:4px">${d.brand_name || ''}</p>
+          <p class="summary-text" style="color:var(--cyan);font-style:italic;margin-bottom:10px">"${d.tagline || ''}"</p>
+          <p class="summary-text">${d.brand_story || ''}</p>
+        </div>
+        <div class="result-section">
+          <div class="result-label">Color Palette</div>
+          <div class="color-strip" style="margin-bottom:28px">
+            ${colorKeys.map(k => colors[k] ? `
+              <div style="flex:1">
+                <div class="color-swatch" style="background:${colors[k].hex};border:1px solid var(--border)"></div>
+                <div style="text-align:center;margin-top:6px">
+                  <div style="font-size:.65rem;color:var(--white);font-weight:600">${colors[k].hex}</div>
+                  <div style="font-size:.58rem;color:var(--muted)">${colors[k].name}</div>
+                </div>
+              </div>` : '').join('')}
+          </div>
+        </div>
+        <div class="result-section">
+          <div class="result-label">Typography</div>
+          <div class="brand-font-row">
+            ${d.typography?.heading_font ? `<div class="font-card"><div class="font-name">HEADING</div><div class="font-preview" style="font-family:'${d.typography.heading_font.name}',sans-serif">${d.typography.heading_font.name}</div><div class="font-label">${d.typography.heading_font.style || ''}</div></div>` : ''}
+            ${d.typography?.body_font ? `<div class="font-card"><div class="font-name">BODY</div><div class="font-preview" style="font-family:'${d.typography.body_font.name}',sans-serif">${d.typography.body_font.name}</div><div class="font-label">${d.typography.body_font.style || ''}</div></div>` : ''}
+          </div>
+        </div>
+        <div class="result-section">
+          <div class="result-label">Logo Concept</div>
+          <p class="summary-text"><strong style="color:var(--cyan)">${d.logo_concept?.style || ''}</strong> — ${d.logo_concept?.description || ''}</p>
+        </div>
+        <div class="result-section">
+          <div class="result-label">Brand Personality</div>
+          <div class="tag-list">${(d.personality || []).map(t => `<span class="tag" style="color:var(--cyan);border-color:rgba(0,240,255,.2)">${t}</span>`).join('')}</div>
+        </div>
+        <div class="result-section">
+          <div class="result-label">Voice & Tone</div>
+          <p class="summary-text"><strong style="color:var(--white)">${d.voice_tone?.tone || ''}</strong> — ${d.voice_tone?.writing_style || ''}</p>
+          ${d.voice_tone?.example_headline ? `<p class="summary-text" style="margin-top:8px;color:var(--cyan);font-style:italic">"${d.voice_tone.example_headline}"</p>` : ''}
+        </div>
+        <div class="result-section">
+          <div class="result-label">Social Media Bios</div>
+          <div class="social-row">
+            ${d.social_media?.instagram_bio ? `<div class="social-item"><div class="social-platform">Instagram</div><div class="social-text">${d.social_media.instagram_bio}</div></div>` : ''}
+            ${d.social_media?.twitter_bio ? `<div class="social-item"><div class="social-platform">X / Twitter</div><div class="social-text">${d.social_media.twitter_bio}</div></div>` : ''}
+            ${d.social_media?.linkedin_tagline ? `<div class="social-item"><div class="social-platform">LinkedIn</div><div class="social-text">${d.social_media.linkedin_tagline}</div></div>` : ''}
+          </div>
+        </div>`);
+    }
+
+    function renderWebsite(d) {
+      const html = d.html || '';
+      // Store for download
+      window._generatedHTML = html;
+      setOutput(`
+        <div class="result-section">
+          <div class="result-label">Generated Website Preview</div>
+          <iframe class="website-preview" id="site-preview" srcdoc="${html.replace(/"/g,'&quot;')}"></iframe>
+          <div class="website-actions">
+            <button class="btn-action primary" onclick="downloadSite()">⬇ Download HTML</button>
+            <button class="btn-action" onclick="openSiteTab()">↗ Open in New Tab</button>
+          </div>
+        </div>`);
+      document.querySelectorAll('.btn-action').forEach(addHover);
+    }
+
+    function downloadSite() {
+      const blob = new Blob([window._generatedHTML], { type: 'text/html' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'generated-website.html';
+      a.click();
+    }
+
+    function openSiteTab() {
+      const w = window.open();
+      w.document.write(window._generatedHTML);
+      w.document.close();
+    }
+
+    // ── LOAD USER ──
+    async function loadUser() {
+      const user = await ApexAuth.getUser();
+      if (user) {
+        const meta = user.user_metadata || {};
+        const name = meta.full_name || meta.name || user.email.split('@')[0];
+        const picture = meta.avatar_url || meta.picture || null;
+        const initials = name.slice(0,2).toUpperCase();
+        const sideAvatar = document.getElementById('user-avatar');
+        if (picture) { sideAvatar.innerHTML = `<img src="${picture}" alt="${name}" referrerpolicy="no-referrer">`; }
+        else { sideAvatar.textContent = initials; }
+        document.getElementById('user-name').textContent = name;
+        document.getElementById('user-plan').textContent = (meta.plan||'Free') + ' Plan';
+        document.getElementById('topbar-name').textContent = name;
+        document.getElementById('topbar-email').textContent = user.email;
+        const wrap = document.getElementById('topbar-avatar-wrap');
+        if (picture) { wrap.innerHTML = `<div class="topbar-avatar"><img src="${picture}" referrerpolicy="no-referrer"></div>`; }
+        else { wrap.innerHTML = `<div class="topbar-avatar-initials">${initials}</div>`; }
+      }
+    }
+
+    // ── INIT ──
+    renderForm('market');
+    loadUser();
+
+    // Handle hash navigation
+    const hash = window.location.hash.replace('#','');
+    if (['market','pitch','brand','website'].includes(hash)) selectAgent(hash);
+  </script>
+</body>
+</html>
