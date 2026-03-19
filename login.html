@@ -187,7 +187,10 @@
     async function handleGoogle() {
       await ApexAuth.getClient().auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: window.location.origin + '/dashboard.html' }
+        options: {
+          redirectTo: window.location.origin + '/dashboard.html',
+          queryParams: { prompt: 'select_account' }
+        }
       });
     }
 
@@ -214,3 +217,4 @@
   </script>
 </body>
 </html>
+
