@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ApexPrime — Project</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="apexauth.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #04040a; --bg2: #06060f; --cyan: #00f0ff; --cyan-dim: #00f0ff22;
+      --orange: #ff5c1a; --green: #00ff88; --white: #eeeef8;
+      --muted: #6b6b8a; --border: #141428; --card-bg: #08081a; --sidebar-w: 240px;
+    }
+    body { background: var(--bg); color: var(--white); font-family: 'Syne', sans-serif; min-height: 100vh; display: flex; cursor: none; }
+    .cursor{position:fixed;width:10px;height:10px;background:var(--cyan);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen;transition:width .15s,height .15s;}
+    .cursor-ring{position:fixed;width:30px;height:30px;border:1px solid var(--cyan);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);opacity:.3;transition:width .2s,height .2s;}
+
+    /* SIDEBAR */
+    .sidebar{width:var(--sidebar-w);min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:50;}
+    .sidebar-logo{padding:28px 24px;border-bottom:1px solid var(--border);font-family:'Orbitron',monospace;font-weight:900;font-size:1rem;letter-spacing:.08em;text-decoration:none;color:var(--white);display:block;}
+    .sidebar-logo span{color:var(--cyan);}
+    .sidebar-nav{flex:1;padding:20px 12px;display:flex;flex-direction:column;gap:4px;overflow-y:auto;}
+    .nav-section-label{font-size:.6rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);padding:14px 12px 6px;}
+    .nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:2px;font-size:.82rem;font-weight:500;color:var(--muted);text-decoration:none;cursor:none;transition:background .15s,color .15s;position:relative;}
+    .nav-item:hover{background:rgba(255,255,255,.03);color:var(--white);}
+    .nav-item.active{background:rgba(0,240,255,.06);color:var(--cyan);}
+    .nav-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--cyan);}
+    .nav-icon{width:16px;text-align:center;font-size:1rem;}
+    .sidebar-bottom{padding:20px 16px;border-top:1px solid var(--border);}
+    .user-row{display:flex;align-items:center;gap:12px;}
+    .avatar{width:38px;height:38px;background:linear-gradient(135deg,var(--cyan),#006fff);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:var(--bg);flex-shrink:0;overflow:hidden;border:2px solid var(--cyan-dim);}
+    .avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+    .user-info{flex:1;overflow:hidden;}
+    .user-name{font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .user-plan{font-size:.65rem;color:var(--cyan);letter-spacing:.08em;text-transform:uppercase;}
+    .logout-btn{background:rgba(255,92,26,.06);border:1px solid rgba(255,92,26,.3);font-family:'Syne',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--orange);cursor:none;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 14px;width:100%;transition:background .15s;margin-top:8px;}
+    .logout-btn:hover{background:rgba(255,92,26,.14);}
+
+    /* MAIN */
+    .main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;}
+    .topbar{height:64px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 36px;background:rgba(4,4,10,.7);backdrop-filter:blur(12px);position:sticky;top:0;z-index:40;}
+    .topbar-left{display:flex;align-items:center;gap:16px;}
+    .back-btn{font-family:'Syne',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:transparent;border:1px solid var(--border);padding:7px 16px;cursor:none;text-decoration:none;transition:all .2s;}
+    .back-btn:hover{color:var(--white);border-color:var(--muted);}
+    .topbar-title h1{font-family:'Orbitron',monospace;font-size:.9rem;font-weight:700;letter-spacing:.08em;}
+    .topbar-title p{font-size:.72rem;color:var(--muted);margin-top:2px;}
+    .topbar-right{display:flex;align-items:center;gap:12px;}
+    .topbar-user{display:flex;align-items:center;gap:10px;padding:6px 12px;background:var(--card-bg);border:1px solid var(--border);}
+    .topbar-avatar{width:30px;height:30px;border-radius:50%;overflow:hidden;border:1px solid var(--cyan-dim);}
+    .topbar-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+    .topbar-avatar-initials{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),#006fff);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:var(--bg);}
+    .topbar-user-name{font-size:.78rem;font-weight:600;color:var(--white);}
+    .topbar-user-email{font-size:.65rem;color:var(--muted);}
+    .topbar-logout{font-family:'Syne',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--orange);background:rgba(255,92,26,.08);border:1px solid rgba(255,92,26,.3);padding:9px 18px;cursor:none;transition:background .2s;}
+    .topbar-logout:hover{background:rgba(255,92,26,.16);}
+
+    /* CONTENT */
+    .content{padding:36px;display:flex;flex-direction:column;gap:24px;}
+
+    /* PROJECT HEADER */
+    .project-header{background:var(--card-bg);border:1px solid var(--border);padding:28px 32px;display:flex;align-items:center;justify-content:space-between;gap:20px;position:relative;overflow:hidden;}
+    .project-header::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+    .project-header.live::before{background:linear-gradient(90deg,var(--green),transparent);}
+    .project-header.building::before{background:linear-gradient(90deg,var(--cyan),transparent);}
+    .project-header.draft::before{background:linear-gradient(90deg,var(--muted),transparent);}
+    .project-icon{width:56px;height:56px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;}
+    .project-info{flex:1;}
+    .project-name{font-family:'Orbitron',monospace;font-size:1.2rem;font-weight:700;margin-bottom:6px;}
+    .project-desc{font-size:.85rem;color:var(--muted);line-height:1.5;max-width:600px;}
+    .project-meta{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap;}
+    .status-pill{display:inline-flex;align-items:center;gap:5px;font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;}
+    .status-pill.live{color:var(--green);background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.2);}
+    .status-pill.building{color:var(--cyan);background:rgba(0,240,255,.08);border:1px solid rgba(0,240,255,.2);}
+    .status-pill.draft{color:var(--muted);background:rgba(107,107,138,.08);border:1px solid rgba(107,107,138,.2);}
+    .status-dot{width:5px;height:5px;border-radius:50%;background:currentColor;}
+    .meta-tag{font-size:.68rem;color:var(--muted);padding:3px 10px;background:rgba(255,255,255,.03);border:1px solid var(--border);}
+    .project-actions-top{display:flex;gap:10px;flex-shrink:0;}
+    .btn-status{font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:8px 18px;cursor:none;border:1px solid var(--border);color:var(--muted);background:transparent;transition:all .2s;}
+    .btn-status:hover{color:var(--white);border-color:var(--muted);}
+    .btn-run-agent{font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--bg);background:var(--cyan);border:none;padding:8px 18px;cursor:none;clip-path:polygon(0 0,calc(100% - 7px) 0,100% 7px,100% 100%,7px 100%,0 calc(100% - 7px));transition:opacity .2s;}
+    .btn-run-agent:hover{opacity:.85;}
+
+    /* PROGRESS */
+    .progress-section{background:var(--card-bg);border:1px solid var(--border);padding:24px 28px;}
+    .section-title{font-family:'Orbitron',monospace;font-size:.78rem;font-weight:600;letter-spacing:.06em;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+    .section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+    .progress-bar-wrap{margin-bottom:16px;}
+    .progress-label{display:flex;justify-content:space-between;margin-bottom:8px;}
+    .progress-label span{font-size:.72rem;color:var(--muted);}
+    .progress-label strong{font-size:.72rem;color:var(--cyan);}
+    .progress-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+    .progress-fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--green));border-radius:2px;transition:width .8s ease;}
+    .agents-progress{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px;}
+    .agent-progress-card{background:var(--bg);border:1px solid var(--border);padding:16px;position:relative;overflow:hidden;transition:border-color .2s;}
+    .agent-progress-card:hover{border-color:rgba(0,240,255,.2);}
+    .agent-progress-card.done{border-color:rgba(0,255,136,.15);}
+    .agent-progress-card.done::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),transparent);}
+    .agent-progress-card.running::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan),transparent);}
+    .agent-progress-card.queued::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--border);}
+    .ap-icon{font-size:1.1rem;margin-bottom:8px;}
+    .ap-name{font-family:'Orbitron',monospace;font-size:.7rem;font-weight:600;letter-spacing:.05em;margin-bottom:6px;}
+    .ap-status{display:inline-flex;align-items:center;gap:5px;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;}
+    .ap-status.done{color:var(--green);}
+    .ap-status.running{color:var(--cyan);}
+    .ap-status.queued{color:var(--muted);}
+    .ap-dot{width:5px;height:5px;border-radius:50%;background:currentColor;}
+    .ap-dot.running{animation:pulse 1.2s infinite;}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+    .ap-time{font-size:.62rem;color:var(--muted);margin-top:4px;}
+    .btn-view-result{font-family:'Syne',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--cyan);background:var(--cyan-dim);border:1px solid rgba(0,240,255,.3);padding:5px 12px;cursor:none;margin-top:8px;transition:background .2s;display:inline-block;}
+    .btn-view-result:hover{background:rgba(0,240,255,.15);}
+
+    /* RESULTS */
+    .results-section{display:flex;flex-direction:column;gap:16px;}
+    .result-card{background:var(--card-bg);border:1px solid var(--border);}
+    .result-card-header{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;cursor:none;}
+    .result-card-header:hover{background:rgba(255,255,255,.01);}
+    .result-card-title{font-family:'Orbitron',monospace;font-size:.78rem;font-weight:600;letter-spacing:.05em;display:flex;align-items:center;gap:10px;}
+    .result-card-body{padding:24px;display:none;}
+    .result-card-body.open{display:block;}
+    .result-label{font-size:.62rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--cyan);margin-bottom:10px;margin-top:16px;display:flex;align-items:center;gap:8px;}
+    .result-label:first-child{margin-top:0;}
+    .result-label::after{content:'';flex:1;height:1px;background:var(--border);}
+    .result-text{font-size:.83rem;color:var(--muted);line-height:1.65;}
+    .verdict-badge{display:inline-block;font-family:'Orbitron',monospace;font-size:.75rem;font-weight:700;padding:8px 20px;letter-spacing:.1em;text-transform:uppercase;}
+    .verdict-badge.STRONG{color:var(--green);background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.3);}
+    .verdict-badge.MODERATE{color:var(--orange);background:rgba(255,92,26,.08);border:1px solid rgba(255,92,26,.3);}
+    .verdict-badge.WEAK{color:#ff4444;background:rgba(255,68,68,.08);border:1px solid rgba(255,68,68,.3);}
+    .market-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;}
+    .market-box{background:var(--bg);border:1px solid var(--border);padding:14px;text-align:center;}
+    .market-box-val{font-family:'Orbitron',monospace;font-size:.78rem;font-weight:700;color:var(--cyan);margin-bottom:4px;}
+    .market-box-label{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;}
+    .tag-list{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:8px;}
+    .tag{font-size:.68rem;padding:4px 10px;background:rgba(255,255,255,.03);border:1px solid var(--border);color:var(--muted);}
+    .competitor-row{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:.78rem;}
+    .competitor-row:last-child{border-bottom:none;}
+    .comp-name{font-weight:600;min-width:100px;color:var(--white);}
+    .comp-good{color:var(--green);font-size:.72rem;}
+    .comp-bad{color:var(--orange);font-size:.72rem;}
+    .toggle-icon{font-size:.8rem;color:var(--muted);transition:transform .2s;}
+    .toggle-icon.open{transform:rotate(180deg);}
+    .btn-pdf{font-family:'Syne',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--bg);background:var(--green);border:none;padding:6px 14px;cursor:none;transition:opacity .2s;}
+    .btn-pdf:hover{opacity:.85;}
+
+    /* RUN AGENT MODAL */
+    .modal-overlay{position:fixed;inset:0;background:rgba(4,4,10,.85);backdrop-filter:blur(8px);z-index:200;display:none;align-items:center;justify-content:center;}
+    .modal-overlay.open{display:flex;}
+    .modal{background:var(--bg2);border:1px solid var(--border);padding:36px;width:100%;max-width:480px;position:relative;}
+    .modal-title{font-family:'Orbitron',monospace;font-size:.9rem;font-weight:700;margin-bottom:6px;}
+    .modal-sub{font-size:.8rem;color:var(--muted);margin-bottom:24px;}
+    .modal-close{position:absolute;top:20px;right:20px;background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:none;}
+    .agent-pick-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+    .agent-pick{background:var(--bg);border:1px solid var(--border);padding:14px;cursor:none;transition:all .2s;text-align:left;}
+    .agent-pick.selected{border-color:var(--cyan);background:var(--cyan-dim);}
+    .agent-pick-icon{font-size:1rem;margin-bottom:6px;}
+    .agent-pick-name{font-size:.75rem;font-weight:600;font-family:'Orbitron',monospace;}
+    .btn-launch-modal{font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--bg);background:var(--cyan);border:none;padding:14px;width:100%;cursor:none;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));transition:opacity .2s;}
+    .btn-launch-modal:hover{opacity:.88;}
+
+    body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");opacity:.02;pointer-events:none;z-index:9997;}
+    @media(max-width:900px){.sidebar{display:none}.main{margin-left:0}.content{padding:20px}.agents-progress{grid-template-columns:1fr 1fr}.agent-pick-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <a href="index.html" class="sidebar-logo">APEX<span>PRIME</span></a>
+    <nav class="sidebar-nav">
+      <span class="nav-section-label">Workspace</span>
+      <a href="dashboard.html" class="nav-item"><span class="nav-icon">⚡</span> Dashboard</a>
+      <a href="myprojects.html" class="nav-item active"><span class="nav-icon">🚀</span> My Projects</a>
+      <a href="agents.html" class="nav-item"><span class="nav-icon">🤖</span> AI Agents</a>
+      <span class="nav-section-label">Tools</span>
+      <a href="agents.html#website" class="nav-item"><span class="nav-icon">🌐</span> Website Builder</a>
+      <a href="agents.html#market" class="nav-item"><span class="nav-icon">📊</span> Market Analysis</a>
+      <a href="agents.html#pitch" class="nav-item"><span class="nav-icon">🎯</span> Pitch Deck</a>
+      <a href="agents.html#brand" class="nav-item"><span class="nav-icon">✦</span> Brand Kit</a>
+      <span class="nav-section-label">Account</span>
+      <a href="#" class="nav-item"><span class="nav-icon">⚙</span> Settings</a>
+      <button class="logout-btn" onclick="ApexAuth.logout()">↩ &nbsp;Sign Out</button>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="user-row">
+        <div class="avatar" id="user-avatar">?</div>
+        <div class="user-info">
+          <div class="user-name" id="user-name">Loading…</div>
+          <div class="user-plan" id="user-plan">—</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <a href="myprojects.html" class="back-btn">← Back</a>
+        <div class="topbar-title">
+          <h1 id="topbar-proj-name">Loading…</h1>
+          <p id="topbar-proj-date">—</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-user">
+          <div id="topbar-avatar-wrap"></div>
+          <div>
+            <div class="topbar-user-name" id="topbar-name">—</div>
+            <div class="topbar-user-email" id="topbar-email">—</div>
+          </div>
+        </div>
+        <button class="topbar-logout" onclick="ApexAuth.logout()">↩ Sign Out</button>
+      </div>
+    </div>
+
+    <div class="content" id="main-content">
+      <div style="text-align:center;padding:80px;color:var(--muted)">Loading project…</div>
+    </div>
+  </main>
+
+  <!-- RUN AGENT MODAL -->
+  <div class="modal-overlay" id="agent-modal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeAgentModal()">✕</button>
+      <div class="modal-title">Run AI Agent</div>
+      <div class="modal-sub">Select which agent to run for this project</div>
+      <div class="agent-pick-grid">
+        <div class="agent-pick" onclick="selectAgentPick('market')" id="pick-market">
+          <div class="agent-pick-icon">📊</div>
+          <div class="agent-pick-name">Market Analysis</div>
+        </div>
+        <div class="agent-pick" onclick="selectAgentPick('pitch')" id="pick-pitch">
+          <div class="agent-pick-icon">🎯</div>
+          <div class="agent-pick-name">Pitch Deck</div>
+        </div>
+        <div class="agent-pick" onclick="selectAgentPick('brand')" id="pick-brand">
+          <div class="agent-pick-icon">✦</div>
+          <div class="agent-pick-name">Brand Kit</div>
+        </div>
+        <div class="agent-pick" onclick="selectAgentPick('website')" id="pick-website">
+          <div class="agent-pick-icon">🌐</div>
+          <div class="agent-pick-name">Website Generator</div>
+        </div>
+      </div>
+      <button class="btn-launch-modal" onclick="goToAgent()">Open Agent →</button>
+    </div>
+  </div>
+
+  <script>
+    // ── CURSOR ──
+    const cursor=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+    let mx=0,my=0,rx=0,ry=0;
+    document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx+'px';cursor.style.top=my+'px';});
+    function animRing(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animRing);} animRing();
+    function addHover(el){el.addEventListener('mouseenter',()=>{cursor.style.width='5px';cursor.style.height='5px';ring.style.width='42px';ring.style.height='42px';});el.addEventListener('mouseleave',()=>{cursor.style.width='10px';cursor.style.height='10px';ring.style.width='30px';ring.style.height='30px';});}
+    document.querySelectorAll('a,button').forEach(addHover);
+
+    // ── GET PROJECT ID FROM URL ──
+    const params = new URLSearchParams(window.location.search);
+    const projectId = params.get('id');
+    if (!projectId) window.location.href = 'myprojects.html';
+
+    const AGENT_ICONS = { 'Market Analysis': '📊', 'Pitch Deck': '🎯', 'Brand Kit': '✦', 'Website Builder': '🌐', '3D Model': '📐', 'n8n Workflows': '⚙️' };
+    function fmtDate(iso){ return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
+    function getIcon(name){ const icons=['🌐','📊','📐','🎯','✦','⚡','🚀','💡','🔬','🏗️','🎨','📱']; let h=0; for(let c of name) h=(h<<5)-h+c.charCodeAt(0); return icons[Math.abs(h)%icons.length]; }
+
+    let projectData = null;
+    let agentLogs = [];
+    let selectedAgentPick = null;
+
+    // ── LOAD USER ──
+    async function loadUser() {
+      const user = await ApexAuth.getUser();
+      if (!user) return;
+      const meta = user.user_metadata || {};
+      const name = meta.full_name || meta.name || user.email.split('@')[0];
+      const picture = meta.avatar_url || meta.picture || null;
+      const initials = name.slice(0,2).toUpperCase();
+      const sideAvatar = document.getElementById('user-avatar');
+      if (picture) { sideAvatar.innerHTML = `<img src="${picture}" referrerpolicy="no-referrer">`; }
+      else { sideAvatar.textContent = initials; }
+      document.getElementById('user-name').textContent = name;
+      document.getElementById('user-plan').textContent = (meta.plan||'Free') + ' Plan';
+      document.getElementById('topbar-name').textContent = name;
+      document.getElementById('topbar-email').textContent = user.email;
+      const wrap = document.getElementById('topbar-avatar-wrap');
+      if (picture) { wrap.innerHTML = `<div class="topbar-avatar"><img src="${picture}" referrerpolicy="no-referrer"></div>`; }
+      else { wrap.innerHTML = `<div class="topbar-avatar-initials">${initials}</div>`; }
+    }
+
+    // ── LOAD PROJECT ──
+    async function loadProject() {
+      const client = ApexAuth.getClient();
+
+      // Get project
+      const { data: project, error } = await client
+        .from('projects')
+        .select('*')
+        .eq('id', projectId)
+        .single();
+
+      if (error || !project) {
+        document.getElementById('main-content').innerHTML = '<div style="text-align:center;padding:80px;color:var(--orange)">Project not found.</div>';
+        return;
+      }
+
+      projectData = project;
+      document.getElementById('topbar-proj-name').textContent = project.name;
+      document.getElementById('topbar-proj-date').textContent = 'Created ' + fmtDate(project.created_at);
+      document.title = 'ApexPrime — ' + project.name;
+
+      // Get agent logs
+      const { data: logs } = await client
+        .from('agent_logs')
+        .select('*')
+        .eq('project_id', projectId)
+        .order('created_at', { ascending: false });
+
+      agentLogs = logs || [];
+
+      renderPage(project, agentLogs);
+    }
+
+    // ── RENDER PAGE ──
+    function renderPage(project, logs) {
+      const agents = project.agents_used || [];
+      const doneCount = logs.filter(l => l.status === 'done').length;
+      const totalAgents = agents.length || 1;
+      const progress = Math.round((doneCount / totalAgents) * 100);
+
+      document.getElementById('main-content').innerHTML = `
+        <!-- PROJECT HEADER -->
+        <div class="project-header ${project.status}">
+          <div class="project-icon">${getIcon(project.name)}</div>
+          <div class="project-info">
+            <div class="project-name">${project.name}</div>
+            <div class="project-desc">${project.description || 'No description provided.'}</div>
+            <div class="project-meta">
+              <span class="status-pill ${project.status}"><span class="status-dot"></span>${project.status}</span>
+              ${agents.map(a => `<span class="meta-tag">${a}</span>`).join('')}
+              <span class="meta-tag">Created ${fmtDate(project.created_at)}</span>
+            </div>
+          </div>
+          <div class="project-actions-top">
+            <button class="btn-status" onclick="updateStatus('live')">Mark Live</button>
+            <button class="btn-run-agent" onclick="openAgentModal()">+ Run Agent</button>
+          </div>
+        </div>
+
+        <!-- PROGRESS -->
+        <div class="progress-section">
+          <div class="section-title">Agent Progress</div>
+          <div class="progress-bar-wrap">
+            <div class="progress-label">
+              <span>${doneCount} of ${agents.length} agents completed</span>
+              <strong>${progress}%</strong>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:${progress}%"></div>
+            </div>
+          </div>
+          <div class="agents-progress">
+            ${agents.map(agent => {
+              const log = logs.find(l => l.agent_name === agent);
+              const status = log ? log.status : 'queued';
+              const icon = AGENT_ICONS[agent] || '🤖';
+              return `
+                <div class="agent-progress-card ${status}">
+                  <div class="ap-icon">${icon}</div>
+                  <div class="ap-name">${agent}</div>
+                  <div class="ap-status ${status}">
+                    <span class="ap-dot ${status === 'running' ? 'running' : ''}"></span>
+                    ${status}
+                  </div>
+                  ${log ? `<div class="ap-time">${fmtDate(log.created_at)}</div>` : ''}
+                  ${log && log.result ? `<button class="btn-view-result" onclick="scrollToResult('${agent}')">View Result</button>` : ''}
+                </div>`;
+            }).join('')}
+          </div>
+        </div>
+
+        <!-- RESULTS -->
+        ${logs.filter(l => l.result).length > 0 ? `
+        <div class="results-section" id="results-section">
+          <div class="section-title" style="font-family:'Orbitron',monospace;font-size:.78rem;font-weight:600;letter-spacing:.06em;display:flex;align-items:center;gap:10px;margin-bottom:0">
+            Agent Results
+            <span style="flex:1;height:1px;background:var(--border);display:block"></span>
+          </div>
+          ${logs.filter(l => l.result).map(log => renderResultCard(log)).join('')}
+        </div>` : ''}
+      `;
+
+      document.querySelectorAll('button,a').forEach(addHover);
+    }
+
+    function renderResultCard(log) {
+      let resultHTML = '';
+      try {
+        const data = JSON.parse(log.result);
+        if (log.agent_name === 'Market Analysis') {
+          resultHTML = `
+            <div class="result-label">Executive Summary</div>
+            <p class="result-text">${data.executive_summary || '—'}</p>
+            <div class="result-label">Verdict</div>
+            <span class="verdict-badge ${data.verdict || 'MODERATE'}">${data.verdict || '—'}</span>
+            <p class="result-text" style="margin-top:8px">${data.verdict_reason || ''}</p>
+            <div class="result-label">Market Size</div>
+            <div class="market-grid">
+              <div class="market-box"><div class="market-box-val">${data.market_size?.tam || '—'}</div><div class="market-box-label">TAM</div></div>
+              <div class="market-box"><div class="market-box-val">${data.market_size?.sam || '—'}</div><div class="market-box-label">SAM</div></div>
+              <div class="market-box"><div class="market-box-val">${data.market_size?.som || '—'}</div><div class="market-box-label">SOM</div></div>
+            </div>
+            <div class="result-label">Competitors</div>
+            ${(data.competitors||[]).map(c=>`<div class="competitor-row"><span class="comp-name">${c.name}</span><span class="comp-good">✓ ${c.strength}</span><span class="comp-bad">✗ ${c.weakness}</span></div>`).join('')}
+            <div class="result-label">Trends</div>
+            <div class="tag-list">${(data.trends||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+            <div class="result-label">Opportunities</div>
+            <div class="tag-list">${(data.opportunities||[]).map(t=>`<span class="tag" style="color:var(--green);border-color:rgba(0,255,136,.2)">${t}</span>`).join('')}</div>
+            <div class="result-label">Risks</div>
+            <div class="tag-list">${(data.risks||[]).map(t=>`<span class="tag" style="color:var(--orange);border-color:rgba(255,92,26,.2)">${t}</span>`).join('')}</div>
+            <div class="result-label">Go-To-Market</div>
+            <p class="result-text">${data.go_to_market || '—'}</p>`;
+        } else {
+          resultHTML = `<pre style="font-size:.75rem;color:var(--muted);white-space:pre-wrap;line-height:1.6">${JSON.stringify(data, null, 2)}</pre>`;
+        }
+      } catch(e) {
+        resultHTML = `<p class="result-text">${log.result}</p>`;
+      }
+
+      return `
+        <div class="result-card" id="result-${log.agent_name.replace(/\s/g,'-')}">
+          <div class="result-card-header" onclick="toggleResult(this)">
+            <div class="result-card-title">
+              ${AGENT_ICONS[log.agent_name] || '🤖'} ${log.agent_name}
+              <span style="font-size:.65rem;color:var(--green);font-family:'Syne',sans-serif;font-weight:400">● Done</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <button class="btn-pdf" onclick="event.stopPropagation();downloadResultPDF('${log.agent_name}', '${log.id}')">⬇ PDF</button>
+              <span class="toggle-icon">▼</span>
+            </div>
+          </div>
+          <div class="result-card-body" id="body-${log.id}">
+            ${resultHTML}
+          </div>
+        </div>`;
+    }
+
+    function toggleResult(header) {
+      const body = header.nextElementSibling;
+      const icon = header.querySelector('.toggle-icon');
+      body.classList.toggle('open');
+      icon.classList.toggle('open');
+    }
+
+    function scrollToResult(agent) {
+      const el = document.getElementById('result-' + agent.replace(/\s/g,'-'));
+      if (el) { el.scrollIntoView({ behavior: 'smooth' }); el.querySelector('.result-card-header').click(); }
+    }
+
+    // ── UPDATE STATUS ──
+    async function updateStatus(status) {
+      await ApexAuth.updateProjectStatus(projectId, status);
+      location.reload();
+    }
+
+    // ── AGENT MODAL ──
+    function openAgentModal() { document.getElementById('agent-modal').classList.add('open'); }
+    function closeAgentModal() { document.getElementById('agent-modal').classList.remove('open'); selectedAgentPick = null; document.querySelectorAll('.agent-pick').forEach(el => el.classList.remove('selected')); }
+    function selectAgentPick(agent) {
+      selectedAgentPick = agent;
+      document.querySelectorAll('.agent-pick').forEach(el => el.classList.remove('selected'));
+      document.getElementById('pick-' + agent).classList.add('selected');
+    }
+    function goToAgent() {
+      if (!selectedAgentPick) { alert('Please select an agent'); return; }
+      // Store project context for agents page
+      sessionStorage.setItem('apexprime_project_id', projectId);
+      sessionStorage.setItem('apexprime_project_name', projectData?.name || '');
+      window.location.href = 'agents.html#' + selectedAgentPick;
+    }
+    document.getElementById('agent-modal').addEventListener('click', e => { if(e.target === document.getElementById('agent-modal')) closeAgentModal(); });
+
+    // ── PDF DOWNLOAD ──
+    async function downloadResultPDF(agentName, logId) {
+      const body = document.getElementById('body-' + logId);
+      if (!body.classList.contains('open')) { body.classList.add('open'); }
+      const opt = {
+        margin: 10,
+        filename: `ApexPrime-${agentName.replace(/\s/g,'-')}.pdf`,
+        image: { type: 'jpeg', quality: 0.95 },
+        html2canvas: { scale: 2, backgroundColor: '#08081a', useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(body).save();
+    }
+
+    // ── INIT ──
+    loadUser();
+    loadProject();
+  </script>
+</body>
+</html>
