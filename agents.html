@@ -298,13 +298,87 @@
   </main>
 
   <script>
-    // ── WEBHOOKS ──
-    const WEBHOOKS = {
-      market:  'https://xan1ameba.app.n8n.cloud/webhook/market-analysis',
-      pitch:   'https://xan1ameba.app.n8n.cloud/webhook/pitch-deck',
-      brand:   'https://xan1ameba.app.n8n.cloud/webhook/brand-kit',
-      website: 'https://xan1ameba.app.n8n.cloud/webhook/website-generator'
+    // ── OPENROUTER CONFIG ──
+    const OPENROUTER_KEY = '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';
+    const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
+    const MODEL = 'google/gemini-2.0-flash-exp:free';
+
+    // ── PROMPTS ──
+    const PROMPTS = {
+      market: (fields) => `You are a world-class startup market analyst. Analyze the following business idea and return ONLY a valid JSON object. No markdown, no code blocks, no extra text whatsoever.
+
+Business Idea: ${fields.description}
+Industry: ${fields.industry}
+
+Return exactly this JSON structure (fill in all fields with real data):
+{"executive_summary":"2-3 sentence overview of the market opportunity","market_size":{"tam":"Total Addressable Market with $ value","sam":"Serviceable Addressable Market with $ value","som":"Serviceable Obtainable Market with $ value"},"growth_rate":"Annual CAGR percentage","target_customers":["segment1","segment2","segment3"],"competitors":[{"name":"competitor name","strength":"their main strength","weakness":"their main weakness"},{"name":"competitor name","strength":"their main strength","weakness":"their main weakness"},{"name":"competitor name","strength":"their main strength","weakness":"their main weakness"}],"trends":["trend1","trend2","trend3"],"opportunities":["opportunity1","opportunity2","opportunity3"],"risks":["risk1","risk2","risk3"],"go_to_market":"Recommended go-to-market strategy description","verdict":"STRONG","verdict_reason":"Why this verdict was given"}`,
+
+      pitch: (fields) => `You are a world-class pitch deck consultant. Create a 10-slide investor pitch deck. Return ONLY valid JSON, no markdown, no code blocks.
+
+Startup Name: ${fields.name}
+Description: ${fields.description}
+Industry: ${fields.industry}
+Target Market: ${fields.target_market}
+
+Return exactly this JSON:
+{"startup_name":"${fields.name}","tagline":"one powerful tagline","slides":[{"slide":1,"title":"Cover","heading":"","content":"","key_point":""},{"slide":2,"title":"Problem","heading":"","content":"","key_point":""},{"slide":3,"title":"Solution","heading":"","content":"","key_point":""},{"slide":4,"title":"Market Size","heading":"","content":"","key_point":""},{"slide":5,"title":"Product","heading":"","content":"","key_point":""},{"slide":6,"title":"Business Model","heading":"","content":"","key_point":""},{"slide":7,"title":"Traction","heading":"","content":"","key_point":""},{"slide":8,"title":"Competition","heading":"","content":"","key_point":""},{"slide":9,"title":"Team","heading":"","content":"","key_point":""},{"slide":10,"title":"The Ask","heading":"","content":"","key_point":""}],"investor_hook":"one sentence that makes investors lean forward"}`,
+
+      brand: (fields) => `You are a world-class brand identity designer. Create a complete brand kit. Return ONLY valid JSON, no markdown, no code blocks.
+
+Brand Name: ${fields.name}
+Description: ${fields.description}
+Industry: ${fields.industry}
+Target Audience: ${fields.target_audience}
+Brand Vibe: ${fields.vibe}
+
+Return exactly this JSON:
+{"brand_name":"${fields.name}","tagline":"","brand_story":"2-3 sentences","personality":["trait1","trait2","trait3","trait4"],"colors":{"primary":{"hex":"#XXXXXX","name":"","usage":""},"secondary":{"hex":"#XXXXXX","name":"","usage":""},"accent":{"hex":"#XXXXXX","name":"","usage":""},"background":{"hex":"#XXXXXX","name":"","usage":""},"text":{"hex":"#XXXXXX","name":"","usage":""}},"typography":{"heading_font":{"name":"","style":""},"body_font":{"name":"","style":""}},"logo_concept":{"style":"","description":"","icon_concept":""},"voice_tone":{"tone":"","writing_style":"","example_headline":"","example_cta":""},"social_media":{"instagram_bio":"","twitter_bio":"","linkedin_tagline":""}}`,
+
+      website: (fields) => `You are an expert web designer. Generate a complete beautiful modern single-page landing website in pure HTML/CSS/JS.
+
+Startup Name: ${fields.name}
+Description: ${fields.description}
+Industry: ${fields.industry}
+Primary Color: ${fields.primary_color}
+Style: ${fields.style}
+
+Requirements:
+- Complete single HTML file with embedded CSS and JS
+- Modern professional design
+- Sections: Hero, Features (3-4), How It Works, CTA, Footer
+- Mobile responsive with smooth animations
+- Use Google Fonts
+
+Return ONLY the raw HTML code starting with <!DOCTYPE html>, nothing else.`
     };
+
+    // ── CALL OPENROUTER ──
+    async function callOpenRouter(prompt) {
+      const response = await fetch(OPENROUTER_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + OPENROUTER_KEY,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://apexprime-beta.vercel.app',
+          'X-Title': 'ApexPrime'
+        },
+        body: JSON.stringify({
+          model: MODEL,
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.7,
+          max_tokens: 4096
+        })
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error?.message || 'OpenRouter API error: ' + response.status);
+      }
+
+      const data = await response.json();
+      const text = data.choices[0].message.content;
+      return text;
+    }
 
     // ── CURSOR ──
     const cursor=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
@@ -396,11 +470,11 @@
     // ── RUN AGENT ──
     async function runAgent() {
       const form = FORMS[currentAgent];
-      const payload = {};
+      const fields = {};
       for (const f of form.fields) {
         const val = document.getElementById('f-' + f.id)?.value?.trim();
         if (!val) { alert('Please fill in: ' + f.label); return; }
-        payload[f.id] = val;
+        fields[f.id] = val;
       }
 
       const btn = document.getElementById('run-btn');
@@ -409,24 +483,33 @@
       setStatus('RUNNING', 'var(--cyan)');
       showLoading();
 
+      // Hide actions bar while running
+      const actionsBar = document.getElementById('output-actions');
+      if (actionsBar) actionsBar.style.display = 'none';
+
       try {
-        const res = await fetch(WEBHOOKS[currentAgent], {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ body: payload })
-        });
+        const prompt = PROMPTS[currentAgent](fields);
+        const text = await callOpenRouter(prompt);
 
-        if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-        const data = await res.json();
-
-        if (data.success && data.data) {
-          renderResult(currentAgent, data.data);
-          setStatus('DONE', 'var(--green)');
+        if (currentAgent === 'website') {
+          // Website returns raw HTML
+          const cleaned = text.replace(/```html/g,'').replace(/```/g,'').trim();
+          renderResult(currentAgent, { html: cleaned });
         } else {
-          throw new Error(data.error || 'No data returned from agent');
+          // Other agents return JSON
+          const cleaned = text.replace(/```json/g,'').replace(/```/g,'').trim();
+          let data;
+          try {
+            data = JSON.parse(cleaned);
+          } catch(e) {
+            throw new Error('AI returned invalid JSON. Try again.');
+          }
+          renderResult(currentAgent, data);
         }
+        setStatus('DONE', 'var(--green)');
+
       } catch (err) {
-        setOutput(`<div class="error-box">⚠ Agent error: ${err.message}<br><br>Make sure your n8n workflow is active and the Gemini API key is set correctly.</div>`);
+        setOutput(`<div class="error-box">⚠ Agent error: ${err.message}<br><br>Check your OpenRouter API key in agents.html</div>`);
         setStatus('ERROR', 'var(--orange)');
       }
 
