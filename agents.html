@@ -169,6 +169,11 @@
     /* ERROR */
     .error-box{background:rgba(255,92,26,.07);border:1px solid rgba(255,92,26,.3);padding:16px;color:var(--orange);font-size:.82rem;line-height:1.5;}
 
+    /* SAVE BUTTON */
+    .btn-save-project{font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--bg);background:var(--orange);border:none;padding:9px 18px;cursor:none;transition:opacity .2s,box-shadow .2s;display:flex;align-items:center;gap:7px;white-space:nowrap;}
+    .btn-save-project:hover{opacity:.88;box-shadow:0 0 20px rgba(255,92,26,.3);}
+    .btn-save-project:disabled{opacity:.5;}
+    .btn-save-project.saved{background:var(--green);color:var(--bg);}
     /* PDF BUTTON */
     .btn-pdf{font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--bg);background:var(--green);border:none;padding:9px 18px;cursor:none;transition:opacity .2s,box-shadow .2s;display:flex;align-items:center;gap:7px;white-space:nowrap;}
     .btn-pdf:hover{opacity:.88;box-shadow:0 0 20px rgba(0,255,136,.3);}
@@ -289,6 +294,7 @@
           </div>
           <div class="output-actions" id="output-actions" style="display:none">
             <span class="output-actions-label">Export result</span>
+            <button class="btn-save-project" id="save-btn" onclick="saveToProject()">💾 Save to Project</button>
             <button class="btn-pdf" id="pdf-btn" onclick="downloadPDF()">⬇ Download PDF</button>
           </div>
         </div>
@@ -606,13 +612,32 @@ Return ONLY the raw HTML code starting with <!DOCTYPE html>, nothing else.`
 
     // ── RENDER RESULTS ──
     function renderResult(agent, data) {
+      // Store result for saving
+      currentResult = data;
+      currentResultRaw = data;
+
       if (agent === 'market') renderMarket(data);
       else if (agent === 'pitch') renderPitch(data);
       else if (agent === 'brand') renderBrand(data);
       else if (agent === 'website') renderWebsite(data);
-      // Show export bar (except website has its own download)
+
+      // Show export bar
       const actionsBar = document.getElementById('output-actions');
-      if (actionsBar) actionsBar.style.display = agent !== 'website' ? 'flex' : 'none';
+      if (actionsBar) {
+        actionsBar.style.display = 'flex';
+        // Reset save button
+        const saveBtn = document.getElementById('save-btn');
+        if (saveBtn) {
+          saveBtn.classList.remove('saved');
+          saveBtn.innerHTML = '💾 Save to Project';
+          saveBtn.disabled = false;
+        }
+        // Check if came from project page
+        const projectName = sessionStorage.getItem('apexprime_project_name');
+        if (projectName) {
+          if (saveBtn) saveBtn.innerHTML = `💾 Save to "${projectName}"`;
+        }
+      }
     }
 
     function renderMarket(d) {
@@ -769,6 +794,106 @@ Return ONLY the raw HTML code starting with <!DOCTYPE html>, nothing else.`
       const w = window.open();
       w.document.write(window._generatedHTML);
       w.document.close();
+    }
+
+    // ── SAVE TO PROJECT ──
+    let currentResult = null;
+    let currentResultRaw = null;
+
+    async function saveToProject() {
+      if (!currentResult && !currentResultRaw) return;
+      const btn = document.getElementById('save-btn');
+
+      // Check if there's a project in session (came from project page)
+      const projectId = sessionStorage.getItem('apexprime_project_id');
+      const projectName = sessionStorage.getItem('apexprime_project_name');
+
+      if (projectId) {
+        // Save directly to that project
+        await saveResultToProject(projectId, btn);
+      } else {
+        // Show project picker
+        showProjectPicker(btn);
+      }
+    }
+
+    async function saveResultToProject(projectId, btn) {
+      btn.disabled = true;
+      btn.textContent = 'Saving…';
+
+      const user = await ApexAuth.getUser();
+      if (!user) { btn.disabled = false; btn.innerHTML = '💾 Save to Project'; return; }
+
+      const client = ApexAuth.getClient();
+      const resultStr = JSON.stringify(currentResult || currentResultRaw);
+
+      // Update agent log with result
+      const { error } = await client.from('agent_logs').insert([{
+        project_id: projectId,
+        user_id: user.id,
+        agent_name: FORMS[currentAgent].title,
+        status: 'done',
+        result: resultStr
+      }]);
+
+      if (!error) {
+        btn.classList.add('saved');
+        btn.innerHTML = '✓ Saved!';
+        btn.disabled = false;
+        // Redirect to project page after 1.5s
+        setTimeout(() => {
+          window.location.href = 'project.html?id=' + projectId;
+        }, 1500);
+      } else {
+        btn.innerHTML = '⚠ Error saving';
+        btn.disabled = false;
+      }
+    }
+
+    async function showProjectPicker(btn) {
+      const projects = await ApexAuth.getProjects();
+      if (!projects.length) {
+        alert('No projects found. Create a project first in My Projects!');
+        return;
+      }
+
+      // Build simple picker
+      const overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(4,4,10,.9);z-index:300;display:flex;align-items:center;justify-content:center;';
+      overlay.innerHTML = `
+        <div style="background:#06060f;border:1px solid #141428;padding:32px;width:100%;max-width:420px;">
+          <div style="font-family:Orbitron,monospace;font-size:.85rem;font-weight:700;margin-bottom:6px">Save to Project</div>
+          <div style="font-size:.78rem;color:#6b6b8a;margin-bottom:20px">Select which project to save this result to</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;max-height:240px;overflow-y:auto;">
+            ${projects.map(p => `
+              <div onclick="selectProjectSave('${p.id}', this)" style="padding:14px;background:#08081a;border:1px solid #141428;cursor:pointer;transition:border-color .2s" onmouseover="this.style.borderColor='rgba(0,240,255,.3)'" onmouseout="this.style.borderColor='#141428'">
+                <div style="font-size:.82rem;font-weight:600">${p.name}</div>
+                <div style="font-size:.7rem;color:#6b6b8a;margin-top:3px">${p.description?.slice(0,60) || ''}…</div>
+              </div>`).join('')}
+          </div>
+          <div style="display:flex;gap:10px">
+            <button onclick="this.closest('div[style]').remove()" style="flex:1;font-family:Syne,sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6b6b8a;background:transparent;border:1px solid #141428;padding:12px;cursor:pointer">Cancel</button>
+            <button id="confirm-save-btn" onclick="confirmProjectSave()" style="flex:1;font-family:Syne,sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#04040a;background:#00f0ff;border:none;padding:12px;cursor:pointer;opacity:.5" disabled>Save →</button>
+          </div>
+        </div>`;
+      document.body.appendChild(overlay);
+      window._saveOverlay = overlay;
+      window._savePicker_btn = btn;
+    }
+
+    window._selectedSaveProjectId = null;
+    function selectProjectSave(id, el) {
+      window._selectedSaveProjectId = id;
+      document.querySelectorAll('[onclick^="selectProjectSave"]').forEach(e => e.style.borderColor = '#141428');
+      el.style.borderColor = 'var(--cyan, #00f0ff)';
+      const confirmBtn = document.getElementById('confirm-save-btn');
+      if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.style.opacity = '1'; }
+    }
+
+    async function confirmProjectSave() {
+      if (!window._selectedSaveProjectId) return;
+      if (window._saveOverlay) window._saveOverlay.remove();
+      await saveResultToProject(window._selectedSaveProjectId, window._savePicker_btn || document.getElementById('save-btn'));
     }
 
     // ── LOAD USER ──
