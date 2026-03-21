@@ -309,7 +309,7 @@
       market:  'https://xan1ameba.app.n8n.cloud/webhook/market-analysis',
       pitch:   null,
       brand:   null,
-      website: null
+      website: 'https://xan1ameba.app.n8n.cloud/webhook/website-generator'
     };
 
     // ── OPENROUTER (direct fallback) ──
@@ -513,6 +513,14 @@ Return ONLY the raw HTML code starting with <!DOCTYPE html>, nothing else.`
           if (!res.ok) throw new Error('Webhook error: ' + res.status);
           const data = await res.json();
           if (data.success && data.data) {
+            renderResult(currentAgent, data.data);
+            setStatus('DONE', 'var(--green)');
+            btn.disabled = false;
+            btn.textContent = form.btnText;
+            return;
+          }
+          // Website generator might return differently
+          if (data.data && data.data.live_url) {
             renderResult(currentAgent, data.data);
             setStatus('DONE', 'var(--green)');
             btn.disabled = false;
@@ -768,18 +776,28 @@ Return ONLY the raw HTML code starting with <!DOCTYPE html>, nothing else.`
 
     function renderWebsite(d) {
       const html = d.html || '';
-      // Store for download
+      const liveUrl = d.live_url || null;
       window._generatedHTML = html;
+
       setOutput(`
         <div class="result-section">
-          <div class="result-label">Generated Website Preview</div>
-          <iframe class="website-preview" id="site-preview" srcdoc="${html.replace(/"/g,'&quot;')}"></iframe>
+          ${liveUrl ? `
+          <div class="result-label">🚀 Live Website</div>
+          <div style="background:rgba(0,255,136,.07);border:1px solid rgba(0,255,136,.2);padding:16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <div>
+              <div style="font-size:.7rem;color:var(--green);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">✓ Deployed to Vercel</div>
+              <div style="font-size:.82rem;color:var(--white);font-family:monospace">${liveUrl}</div>
+            </div>
+            <a href="${liveUrl}" target="_blank" style="font-family:Syne,sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--bg);background:var(--green);border:none;padding:9px 18px;text-decoration:none;white-space:nowrap;cursor:none">↗ Open Live Site</a>
+          </div>` : ''}
+          <div class="result-label">Preview</div>
+          ${html ? `<iframe class="website-preview" id="site-preview" srcdoc="${html.replace(/"/g,'&quot;').replace(/`/g,'\`')}"></iframe>` : '<div style="padding:40px;text-align:center;color:var(--muted)">Preview loading…</div>'}
           <div class="website-actions">
             <button class="btn-action primary" onclick="downloadSite()">⬇ Download HTML</button>
             <button class="btn-action" onclick="openSiteTab()">↗ Open in New Tab</button>
           </div>
         </div>`);
-      document.querySelectorAll('.btn-action').forEach(addHover);
+      document.querySelectorAll('.btn-action,a').forEach(addHover);
     }
 
     function downloadSite() {
