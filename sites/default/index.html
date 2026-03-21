@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Startup</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #00f0ff;
+            --text-color: #333;
+            --bg-color: #fff;
+            --secondary-bg-color: #f7f7f7;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* General Styles */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1, h2, h3 {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+
+        h1 {
+            font-size: 3rem;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+        }
+
+        h3 {
+            font-size: 2rem;
+        }
+
+        p {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #00c2cc;
+        }
+
+        /* Header & Navigation */
+        header {
+            background-color: var(--bg-color);
+            box-shadow: 0 2px 5px var(--shadow-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+        }
+
+        .nav-links li {
+            margin-left: 20px;
+        }
+
+        .nav-links a {
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            text-decoration: none;
+            color: var(--primary-color);
+        }
+
+        /* Hero Section */
+        #hero {
+            background-color: var(--secondary-bg-color);
+            padding: 100px 0;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero-content h1 {
+            font-size: 4rem;
+            margin-bottom: 30px;
+        }
+
+        .email-signup {
+            margin-top: 30px;
+        }
+
+        .email-signup input[type="email"] {
+            padding: 12px 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+            width: 300px;
+            margin-right: 10px;
+        }
+
+        .email-signup button {
+            padding: 12px 24px;
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .email-signup button:hover {
+            background-color: #00c2cc;
+        }
+
+        /* Features Section */
+        #features {
+            padding: 80px 0;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-item {
+            padding: 30px;
+            background-color: var(--bg-color);
+            box-shadow: 0 2px 5px var(--shadow-color);
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .feature-item i {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        /* How It Works Section */
+        #how-it-works {
+            background-color: var(--secondary-bg-color);
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .steps-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 50px;
+        }
+
+        .step {
+            text-align: center;
+            margin-bottom: 40px;
+            width: 250px;
+        }
+
+        .step i {
+            font-size: 4rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .step h3 {
+            font-size: 1.5rem;
+        }
+
+        /* Testimonials Section */
+        #testimonials {
+            padding: 80px 0;
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .testimonial-item {
+            padding: 30px;
+            background-color: var(--bg-color);
+            box-shadow: 0 2px 5px var(--shadow-color);
+            border-radius: 5px;
+        }
+
+        .testimonial-item p {
+            font-style: italic;
+            margin-bottom: 15px;
+        }
+
+        .testimonial-author {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        /* CTA Section */
+        #cta {
+            background-color: var(--primary-color);
+            padding: 80px 0;
+            text-align: center;
+            color: var(--bg-color);
+        }
+
+        #cta h2 {
+            color: var(--bg-color);
+            margin-bottom: 30px;
+        }
+
+        #cta p {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--text-color);
+            color: var(--bg-color);
+            padding: 30px 0;
+            text-align: center;
+        }
+
+        footer p {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 3rem;
+            }
+
+            h2 {
+                font-size: 2rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero-content h1 {
+                font-size: 3rem;
+            }
+
+            .email-signup input[type="email"] {
+                width: 80%;
+                margin-bottom: 10px;
+                margin-right: 0;
+            }
+
+            .steps-container {
+                flex-direction: column;
+            }
+        }
+
+        /* Animation */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .fade-in.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+
+    <header>
+        <nav class="container">
+            <a href="#" class="logo">My Startup</a>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#testimonials">Testimonials</a></li>
+                <li><a href="#cta">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section id="hero">
+        <div class="container hero-content">
+            <h1 class="fade-in">Revolutionizing the Future.</h1>
+            <p class="fade-in">Join our community and be at the forefront of innovation.</p>
+            <div class="email-signup fade-in">
+                <input type="email" placeholder="Enter your email">
+                <button>Subscribe</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="features">
+        <div class="container">
+            <h2 class="fade-in">Key Features</h2>
+            <div class="features-grid">
+                <div class="feature-item fade-in">
+                    <i class="fas fa-rocket"></i>
+                    <h3>Blazing Fast</h3>
+                    <p>Experience unparalleled speed and efficiency with our cutting-edge technology.</p>
+                </div>
+                <div class="feature-item fade-in">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>Secure & Reliable</h3>
+                    <p>Your data is safe with us. We employ the latest security measures to ensure peace of mind.</p>
+                </div>
+                <div class="feature-item fade-in">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Data Driven</h3>
+                    <p>Get actionable insights from your data to make informed decisions and drive growth.</p>
+                </div>
+                <div class="feature-item fade-in">
+                    <i class="fas fa-code"></i>
+                    <h3>Easy Integration</h3>
+                    <p>Seamlessly integrate our platform with your existing tools and workflows.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="how-it-works">
+        <div class="container">
+            <h2 class="fade-in">How It Works</h2>
+            <div class="steps-container">
+                <div class="step fade-in">
+                    <i class="fas fa-user-plus"></i>
+                    <h3>Sign Up</h3>
+                    <p>Create your account in just a few easy steps.</p>
+                </div>
+                <div class="step fade-in">
+                    <i class="fas fa-cogs"></i>
+                    <h3>Customize</h3>
+                    <p>Tailor the platform to your specific needs and preferences.</p>
+                </div>
+                <div class="step fade-in">
+                    <i class="fas fa-rocket"></i>
+                    <h3>Launch</h3>
+                    <p>Start using our platform and experience the difference.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="testimonials">
+        <div class="container">
+            <h2 class="fade-in">Testimonials</h2>
+            <div class="testimonials-grid">
+                <div class="testimonial-item fade-in">
+                    <p>"My Startup has completely transformed the way we do business. Highly recommended!"</p>
+                    <p class="testimonial-author">- John Doe, CEO</p>
+                </div>
+                <div class="testimonial-item fade-in">
+                    <p>"The platform is incredibly user-friendly and the support team is always there to help. Fantastic!"</p>
+                    <p class="testimonial-author">- Jane Smith, Marketing Manager</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="cta">
+        <div class="container">
+            <h2 class="fade-in">Ready to Get Started?</h2>
+            <p class="fade-in">Join My Startup today and unlock your full potential.</p>
+            <a href="#" class="btn fade-in">Get Started Now</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 My Startup. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function reveal() {
+            var reveals = document.querySelectorAll(".fade-in");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                var elementVisible = 150;
+                if (elementTop < windowHeight - elementVisible) {
+                    reveals[i].classList.add("active");
+                } else {
+                    reveals[i].classList.remove("active");
+                }
+            }
+        }
+
+        window.addEventListener("scroll", reveal);
+    </script>
+
+</body>
+</html>
