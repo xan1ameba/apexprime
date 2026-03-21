@@ -298,10 +298,18 @@
   </main>
 
   <script>
-    // ── OPENROUTER CONFIG ──
-    const OPENROUTER_KEY = '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';
+    // ── WEBHOOKS (n8n) ──
+    const WEBHOOKS = {
+      market:  'https://xan1ameba.app.n8n.cloud/webhook/market-analysis',
+      pitch:   null,
+      brand:   null,
+      website: null
+    };
+
+    // ── OPENROUTER (direct fallback) ──
+    const OPENROUTER_KEY = 'YOUR_OPENROUTER_KEY';
     const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
-    const MODEL = 'google/gemini-2.0-flash-001';
+    const MODEL = 'google/gemini-2.0-flash-exp:free';
 
     // ── PROMPTS ──
     const PROMPTS = {
@@ -488,8 +496,29 @@ Return ONLY the raw HTML code starting with <!DOCTYPE html>, nothing else.`
       if (actionsBar) actionsBar.style.display = 'none';
 
       try {
-        const prompt = PROMPTS[currentAgent](fields);
-        const text = await callOpenRouter(prompt);
+        let text;
+        if (WEBHOOKS[currentAgent]) {
+          // Use n8n webhook
+          const res = await fetch(WEBHOOKS[currentAgent], {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ body: fields })
+          });
+          if (!res.ok) throw new Error('Webhook error: ' + res.status);
+          const data = await res.json();
+          if (data.success && data.data) {
+            renderResult(currentAgent, data.data);
+            setStatus('DONE', 'var(--green)');
+            btn.disabled = false;
+            btn.textContent = form.btnText;
+            return;
+          }
+          throw new Error(data.error || 'No data from webhook');
+        } else {
+          // Direct OpenRouter call
+          const prompt = PROMPTS[currentAgent](fields);
+          text = await callOpenRouter(prompt);
+        }
 
         if (currentAgent === 'website') {
           // Website returns raw HTML
