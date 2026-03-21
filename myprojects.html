@@ -349,13 +349,18 @@
             <div class="proj-date">${fmtDate(p.created_at)}</div>
             <div class="proj-actions">
               <button class="btn-delete" onclick="confirmDelete('${p.id}','${p.name.replace(/'/g,"\\'")}')">Delete</button>
-              <button class="btn-open">Open →</button>
+              <button class="btn-open" onclick="openProject('${p.id}')">Open →</button>
             </div>
           </div>
         </div>`).join('');
 
       // Re-add hover listeners for new elements
       grid.querySelectorAll('button').forEach(addHover);
+    }
+
+    // ── OPEN PROJECT ──
+    function openProject(id) {
+      window.location.href = 'project.html?id=' + id;
     }
 
     // ── LOAD DATA ──
