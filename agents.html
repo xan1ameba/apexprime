@@ -113,7 +113,6 @@
     .empty-output-text{font-size:.8rem;color:var(--muted);}
 
     /* RESULTS */
-    /* Market Analysis */
     .result-section{margin-bottom:20px;}
     .result-label{font-size:.62rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--cyan);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
     .result-label::after{content:'';flex:1;height:1px;background:var(--border);}
@@ -133,8 +132,6 @@
     .comp-good{color:var(--green);font-size:.72rem;}
     .comp-bad{color:var(--orange);font-size:.72rem;}
     .summary-text{font-size:.82rem;color:var(--muted);line-height:1.65;}
-
-    /* Pitch Deck */
     .slide-grid{display:flex;flex-direction:column;gap:10px;}
     .slide-card{background:var(--bg);border:1px solid var(--border);padding:16px;position:relative;transition:border-color .2s;}
     .slide-card:hover{border-color:rgba(0,240,255,.2);}
@@ -143,11 +140,8 @@
     .slide-heading{font-size:.88rem;font-weight:600;margin-bottom:6px;}
     .slide-content{font-size:.75rem;color:var(--muted);line-height:1.5;}
     .slide-key{font-size:.7rem;color:var(--cyan);margin-top:8px;font-style:italic;}
-
-    /* Brand Kit */
     .color-strip{display:flex;gap:8px;margin-bottom:16px;}
     .color-swatch{flex:1;height:64px;border-radius:2px;position:relative;cursor:none;}
-    .color-swatch-label{position:absolute;bottom:-20px;left:0;right:0;text-align:center;font-size:.6rem;color:var(--muted);}
     .brand-font-row{display:flex;gap:12px;margin-bottom:16px;}
     .font-card{flex:1;background:var(--bg);border:1px solid var(--border);padding:14px;}
     .font-name{font-size:.72rem;font-weight:700;color:var(--cyan);margin-bottom:4px;}
@@ -157,24 +151,18 @@
     .social-item{background:var(--bg);border:1px solid var(--border);padding:12px 14px;}
     .social-platform{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--cyan);margin-bottom:4px;}
     .social-text{font-size:.78rem;color:var(--muted);}
-
-    /* Website */
     .website-preview{width:100%;height:400px;border:1px solid var(--border);background:#fff;}
     .website-actions{display:flex;gap:10px;margin-top:12px;}
     .btn-action{font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:9px 18px;cursor:none;border:1px solid var(--border);color:var(--muted);background:transparent;transition:all .2s;flex:1;text-align:center;}
     .btn-action:hover{color:var(--white);border-color:var(--muted);}
     .btn-action.primary{color:var(--bg);background:var(--cyan);border-color:var(--cyan);}
     .btn-action.primary:hover{opacity:.88;}
-
-    /* ERROR */
     .error-box{background:rgba(255,92,26,.07);border:1px solid rgba(255,92,26,.3);padding:16px;color:var(--orange);font-size:.82rem;line-height:1.5;}
-
-    /* SAVE BUTTON */
+    .debug-box{background:rgba(255,255,255,.03);border:1px solid var(--border);padding:12px;margin-top:10px;font-size:.7rem;color:var(--muted);font-family:monospace;word-break:break-all;max-height:120px;overflow-y:auto;}
     .btn-save-project{font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--bg);background:var(--orange);border:none;padding:9px 18px;cursor:none;transition:opacity .2s,box-shadow .2s;display:flex;align-items:center;gap:7px;white-space:nowrap;}
     .btn-save-project:hover{opacity:.88;box-shadow:0 0 20px rgba(255,92,26,.3);}
     .btn-save-project:disabled{opacity:.5;}
     .btn-save-project.saved{background:var(--green);color:var(--bg);}
-    /* PDF BUTTON */
     .btn-pdf{font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--bg);background:var(--green);border:none;padding:9px 18px;cursor:none;transition:opacity .2s,box-shadow .2s;display:flex;align-items:center;gap:7px;white-space:nowrap;}
     .btn-pdf:hover{opacity:.88;box-shadow:0 0 20px rgba(0,255,136,.3);}
     .btn-pdf:disabled{opacity:.5;}
@@ -222,7 +210,7 @@
     <div class="topbar">
       <div class="topbar-left">
         <h1>AI Agents</h1>
-        <p>Powered by Gemini 2.0 Flash via n8n</p>
+        <p>Powered by Claude Sonnet via n8n</p>
       </div>
       <div class="topbar-right">
         <div class="topbar-user">
@@ -238,28 +226,28 @@
 
     <div class="content">
 
-      <!-- AGENT SELECTOR TABS -->
+      <!-- AGENT TABS -->
       <div class="agent-tabs">
         <button class="agent-tab active" onclick="selectAgent('market')" id="tab-market">
-          <span class="agent-tab-badge">GEMINI</span>
+          <span class="agent-tab-badge">AI</span>
           <span class="agent-tab-icon">📊</span>
           <span class="agent-tab-name">Market Analysis</span>
           <span class="agent-tab-desc">TAM/SAM/SOM, competitors, trends & go-to-market</span>
         </button>
         <button class="agent-tab" onclick="selectAgent('pitch')" id="tab-pitch">
-          <span class="agent-tab-badge">GEMINI</span>
+          <span class="agent-tab-badge">AI</span>
           <span class="agent-tab-icon">🎯</span>
           <span class="agent-tab-name">Pitch Deck</span>
           <span class="agent-tab-desc">10-slide investor deck with narrative & financials</span>
         </button>
         <button class="agent-tab" onclick="selectAgent('brand')" id="tab-brand">
-          <span class="agent-tab-badge">GEMINI</span>
+          <span class="agent-tab-badge">AI</span>
           <span class="agent-tab-icon">✦</span>
           <span class="agent-tab-name">Brand Kit</span>
           <span class="agent-tab-desc">Colors, fonts, logo concept & brand voice</span>
         </button>
         <button class="agent-tab" onclick="selectAgent('website')" id="tab-website">
-          <span class="agent-tab-badge">GEMINI</span>
+          <span class="agent-tab-badge">CLAUDE</span>
           <span class="agent-tab-icon">🌐</span>
           <span class="agent-tab-name">Website Generator</span>
           <span class="agent-tab-desc">Full HTML landing page, responsive & production-ready</span>
@@ -268,19 +256,13 @@
 
       <!-- WORKSPACE -->
       <div class="workspace">
-
-        <!-- INPUT PANEL -->
         <div class="input-panel">
           <div class="panel-header">
             <span class="panel-title" id="input-title">Market Analysis</span>
             <span class="panel-badge" id="input-badge">INPUT</span>
           </div>
-          <div class="panel-body" id="input-body">
-            <!-- Injected by JS -->
-          </div>
+          <div class="panel-body" id="input-body"></div>
         </div>
-
-        <!-- OUTPUT PANEL -->
         <div class="output-panel">
           <div class="panel-header">
             <span class="panel-title">Output</span>
@@ -298,13 +280,12 @@
             <button class="btn-pdf" id="pdf-btn" onclick="downloadPDF()">⬇ Download PDF</button>
           </div>
         </div>
-
       </div>
     </div>
   </main>
 
   <script>
-    // ── WEBHOOKS (n8n) ──
+    // ── WEBHOOKS ──
     const WEBHOOKS = {
       market:  'https://xan1ameba.app.n8n.cloud/webhook/market-analysis',
       pitch:   null,
@@ -312,22 +293,22 @@
       website: 'https://xan1ameba.app.n8n.cloud/webhook/website-generator'
     };
 
-    // ── OPENROUTER (direct fallback) ──
+    // ── OPENROUTER (fallback for agents without webhook) ──
     const OPENROUTER_KEY = 'YOUR_OPENROUTER_KEY';
     const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
     const MODEL = 'google/gemini-2.0-flash-exp:free';
 
-    // ── PROMPTS ──
+    // ── PROMPTS (used only when no webhook is set) ──
     const PROMPTS = {
       market: (fields) => `You are a world-class startup market analyst. Analyze the following business idea and return ONLY a valid JSON object. No markdown, no code blocks, no extra text whatsoever.
 
 Business Idea: ${fields.description}
 Industry: ${fields.industry}
 
-Return exactly this JSON structure (fill in all fields with real data):
-{"executive_summary":"2-3 sentence overview of the market opportunity","market_size":{"tam":"Total Addressable Market with $ value","sam":"Serviceable Addressable Market with $ value","som":"Serviceable Obtainable Market with $ value"},"growth_rate":"Annual CAGR percentage","target_customers":["segment1","segment2","segment3"],"competitors":[{"name":"competitor name","strength":"their main strength","weakness":"their main weakness"},{"name":"competitor name","strength":"their main strength","weakness":"their main weakness"},{"name":"competitor name","strength":"their main strength","weakness":"their main weakness"}],"trends":["trend1","trend2","trend3"],"opportunities":["opportunity1","opportunity2","opportunity3"],"risks":["risk1","risk2","risk3"],"go_to_market":"Recommended go-to-market strategy description","verdict":"STRONG","verdict_reason":"Why this verdict was given"}`,
+Return exactly this JSON structure:
+{"executive_summary":"2-3 sentence overview","market_size":{"tam":"TAM with $ value","sam":"SAM with $ value","som":"SOM with $ value"},"growth_rate":"CAGR %","target_customers":["segment1","segment2","segment3"],"competitors":[{"name":"name","strength":"strength","weakness":"weakness"},{"name":"name","strength":"strength","weakness":"weakness"},{"name":"name","strength":"strength","weakness":"weakness"}],"trends":["trend1","trend2","trend3"],"opportunities":["opp1","opp2","opp3"],"risks":["risk1","risk2","risk3"],"go_to_market":"GTM strategy","verdict":"STRONG","verdict_reason":"reason"}`,
 
-      pitch: (fields) => `You are a world-class pitch deck consultant. Create a 10-slide investor pitch deck. Return ONLY valid JSON, no markdown, no code blocks.
+      pitch: (fields) => `You are a world-class pitch deck consultant. Create a 10-slide investor pitch deck. Return ONLY valid JSON, no markdown.
 
 Startup Name: ${fields.name}
 Description: ${fields.description}
@@ -335,9 +316,9 @@ Industry: ${fields.industry}
 Target Market: ${fields.target_market}
 
 Return exactly this JSON:
-{"startup_name":"${fields.name}","tagline":"one powerful tagline","slides":[{"slide":1,"title":"Cover","heading":"","content":"","key_point":""},{"slide":2,"title":"Problem","heading":"","content":"","key_point":""},{"slide":3,"title":"Solution","heading":"","content":"","key_point":""},{"slide":4,"title":"Market Size","heading":"","content":"","key_point":""},{"slide":5,"title":"Product","heading":"","content":"","key_point":""},{"slide":6,"title":"Business Model","heading":"","content":"","key_point":""},{"slide":7,"title":"Traction","heading":"","content":"","key_point":""},{"slide":8,"title":"Competition","heading":"","content":"","key_point":""},{"slide":9,"title":"Team","heading":"","content":"","key_point":""},{"slide":10,"title":"The Ask","heading":"","content":"","key_point":""}],"investor_hook":"one sentence that makes investors lean forward"}`,
+{"startup_name":"${fields.name}","tagline":"tagline","slides":[{"slide":1,"title":"Cover","heading":"","content":"","key_point":""},{"slide":2,"title":"Problem","heading":"","content":"","key_point":""},{"slide":3,"title":"Solution","heading":"","content":"","key_point":""},{"slide":4,"title":"Market Size","heading":"","content":"","key_point":""},{"slide":5,"title":"Product","heading":"","content":"","key_point":""},{"slide":6,"title":"Business Model","heading":"","content":"","key_point":""},{"slide":7,"title":"Traction","heading":"","content":"","key_point":""},{"slide":8,"title":"Competition","heading":"","content":"","key_point":""},{"slide":9,"title":"Team","heading":"","content":"","key_point":""},{"slide":10,"title":"The Ask","heading":"","content":"","key_point":""}],"investor_hook":"hook sentence"}`,
 
-      brand: (fields) => `You are a world-class brand identity designer. Create a complete brand kit. Return ONLY valid JSON, no markdown, no code blocks.
+      brand: (fields) => `You are a world-class brand identity designer. Create a complete brand kit. Return ONLY valid JSON, no markdown.
 
 Brand Name: ${fields.name}
 Description: ${fields.description}
@@ -348,22 +329,7 @@ Brand Vibe: ${fields.vibe}
 Return exactly this JSON:
 {"brand_name":"${fields.name}","tagline":"","brand_story":"2-3 sentences","personality":["trait1","trait2","trait3","trait4"],"colors":{"primary":{"hex":"#XXXXXX","name":"","usage":""},"secondary":{"hex":"#XXXXXX","name":"","usage":""},"accent":{"hex":"#XXXXXX","name":"","usage":""},"background":{"hex":"#XXXXXX","name":"","usage":""},"text":{"hex":"#XXXXXX","name":"","usage":""}},"typography":{"heading_font":{"name":"","style":""},"body_font":{"name":"","style":""}},"logo_concept":{"style":"","description":"","icon_concept":""},"voice_tone":{"tone":"","writing_style":"","example_headline":"","example_cta":""},"social_media":{"instagram_bio":"","twitter_bio":"","linkedin_tagline":""}}`,
 
-      website: (fields) => `You are an expert web designer. Generate a complete beautiful modern single-page landing website in pure HTML/CSS/JS.
-
-Startup Name: ${fields.name}
-Description: ${fields.description}
-Industry: ${fields.industry}
-Primary Color: ${fields.primary_color}
-Style: ${fields.style}
-
-Requirements:
-- Complete single HTML file with embedded CSS and JS
-- Modern professional design
-- Sections: Hero, Features (3-4), How It Works, CTA, Footer
-- Mobile responsive with smooth animations
-- Use Google Fonts
-
-Return ONLY the raw HTML code starting with <!DOCTYPE html>, nothing else.`
+      website: (fields) => '' // website always goes through n8n
     };
 
     // ── CALL OPENROUTER ──
@@ -383,15 +349,12 @@ Return ONLY the raw HTML code starting with <!DOCTYPE html>, nothing else.`
           max_tokens: 4096
         })
       });
-
       if (!response.ok) {
         const err = await response.json();
         throw new Error(err.error?.message || 'OpenRouter API error: ' + response.status);
       }
-
       const data = await response.json();
-      const text = data.choices[0].message.content;
-      return text;
+      return data.choices[0].message.content;
     }
 
     // ── CURSOR ──
@@ -455,6 +418,7 @@ Return ONLY the raw HTML code starting with <!DOCTYPE html>, nothing else.`
       renderForm(agent);
       setOutput('<div class="empty-output"><div class="empty-output-icon">🤖</div><div class="empty-output-text">Fill in the form and run the agent<br>to see results here</div></div>');
       document.getElementById('output-status').textContent = 'READY';
+      document.getElementById('output-status').style.color = 'var(--cyan)';
       const actionsBar = document.getElementById('output-actions');
       if (actionsBar) actionsBar.style.display = 'none';
     }
@@ -497,62 +461,98 @@ Return ONLY the raw HTML code starting with <!DOCTYPE html>, nothing else.`
       setStatus('RUNNING', 'var(--cyan)');
       showLoading();
 
-      // Hide actions bar while running
       const actionsBar = document.getElementById('output-actions');
       if (actionsBar) actionsBar.style.display = 'none';
 
       try {
-        let text;
-        if (WEBHOOKS[currentAgent]) {
-          // Use n8n webhook
-          const res = await fetch(WEBHOOKS[currentAgent], {
+        // ── WEBSITE: always use n8n webhook ──
+        if (currentAgent === 'website') {
+          if (!WEBHOOKS.website) throw new Error('Website webhook not configured.');
+
+          const res = await fetch(WEBHOOKS.website, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ body: fields })
           });
-          if (!res.ok) throw new Error('Webhook error: ' + res.status);
-          const data = await res.json();
-          if (data.success && data.data) {
-            renderResult(currentAgent, data.data);
-            setStatus('DONE', 'var(--green)');
-            btn.disabled = false;
-            btn.textContent = form.btnText;
-            return;
+
+          if (!res.ok) {
+            const errText = await res.text();
+            throw new Error(`Webhook error ${res.status}: ${errText.slice(0, 200)}`);
           }
-          // Website generator might return differently
-          if (data.data && data.data.live_url) {
-            renderResult(currentAgent, data.data);
-            setStatus('DONE', 'var(--green)');
-            btn.disabled = false;
-            btn.textContent = form.btnText;
-            return;
+
+          const raw = await res.json();
+
+          // ── Flexible response parsing: handle all possible n8n response shapes ──
+          let html = '';
+          let liveUrl = '';
+
+          if (raw.success && raw.data) {
+            // Standard shape: { success: true, data: { html, live_url } }
+            html = raw.data.html || '';
+            liveUrl = raw.data.live_url || '';
+          } else if (raw.html) {
+            // Flat shape: { html: '...' }
+            html = raw.html;
+            liveUrl = raw.live_url || '';
+          } else if (raw.data && raw.data.html) {
+            // Nested shape: { data: { html: '...' } }
+            html = raw.data.html;
+            liveUrl = raw.data.live_url || '';
+          } else if (typeof raw === 'string' && raw.includes('<html')) {
+            // Raw HTML string returned directly
+            html = raw;
+          } else {
+            // Nothing matched — show debug info
+            throw new Error('Unexpected response from n8n. Debug: ' + JSON.stringify(raw).slice(0, 400));
           }
-          throw new Error(data.error || 'No data from webhook');
-        } else {
-          // Direct OpenRouter call
-          const prompt = PROMPTS[currentAgent](fields);
-          text = await callOpenRouter(prompt);
+
+          if (!html || !html.includes('<')) {
+            throw new Error('n8n returned empty or invalid HTML. Check your Parse HTML and Finalize nodes in n8n.');
+          }
+
+          renderResult('website', { html, live_url: liveUrl });
+          setStatus('DONE', 'var(--green)');
+          btn.disabled = false;
+          btn.textContent = form.btnText;
+          return;
         }
 
-        if (currentAgent === 'website') {
-          // Website returns raw HTML
-          const cleaned = text.replace(/```html/g,'').replace(/```/g,'').trim();
-          renderResult(currentAgent, { html: cleaned });
-        } else {
-          // Other agents return JSON
-          const cleaned = text.replace(/```json/g,'').replace(/```/g,'').trim();
-          let data;
-          try {
-            data = JSON.parse(cleaned);
-          } catch(e) {
-            throw new Error('AI returned invalid JSON. Try again.');
-          }
-          renderResult(currentAgent, data);
+        // ── MARKET: use n8n webhook ──
+        if (currentAgent === 'market' && WEBHOOKS.market) {
+          const res = await fetch(WEBHOOKS.market, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ body: fields })
+          });
+          if (!res.ok) throw new Error('Market webhook error: ' + res.status);
+          const raw = await res.json();
+          const data = raw.data || raw;
+          renderResult('market', data);
+          setStatus('DONE', 'var(--green)');
+          btn.disabled = false;
+          btn.textContent = form.btnText;
+          return;
         }
+
+        // ── PITCH / BRAND: direct OpenRouter call ──
+        if (!OPENROUTER_KEY || OPENROUTER_KEY === 'YOUR_OPENROUTER_KEY') {
+          throw new Error('OpenRouter API key not set. Add your key to agents.html (OPENROUTER_KEY variable).');
+        }
+        const prompt = PROMPTS[currentAgent](fields);
+        const text = await callOpenRouter(prompt);
+        const cleaned = text.replace(/```json/g,'').replace(/```/g,'').trim();
+        let data;
+        try { data = JSON.parse(cleaned); }
+        catch(e) { throw new Error('AI returned invalid JSON. Try again.'); }
+        renderResult(currentAgent, data);
         setStatus('DONE', 'var(--green)');
 
       } catch (err) {
-        setOutput(`<div class="error-box">⚠ Agent error: ${err.message}<br><br>Check your OpenRouter API key in agents.html</div>`);
+        setOutput(`
+          <div class="error-box">
+            ⚠ ${err.message}
+            ${err.message.includes('Debug:') ? `<div class="debug-box">${err.message.split('Debug:')[1]}</div>` : ''}
+          </div>`);
         setStatus('ERROR', 'var(--orange)');
       }
 
@@ -562,24 +562,25 @@ Return ONLY the raw HTML code starting with <!DOCTYPE html>, nothing else.`
 
     function showLoading() {
       const steps = {
-        market:  ['Connecting to n8n…', 'Calling Gemini AI…', 'Analyzing market data…', 'Building report…'],
-        pitch:   ['Connecting to n8n…', 'Calling Gemini AI…', 'Writing slide content…', 'Building deck…'],
-        brand:   ['Connecting to n8n…', 'Calling Gemini AI…', 'Generating brand identity…', 'Building kit…'],
-        website: ['Connecting to n8n…', 'Calling Gemini AI…', 'Writing HTML & CSS…', 'Finalizing site…']
+        market:  ['Connecting to n8n…', 'Calling AI…', 'Analyzing market data…', 'Building report…'],
+        pitch:   ['Connecting to AI…', 'Writing slide content…', 'Building narrative…', 'Finalizing deck…'],
+        brand:   ['Connecting to AI…', 'Generating brand identity…', 'Choosing colors & fonts…', 'Building kit…'],
+        website: ['Connecting to n8n…', 'Calling Claude Sonnet…', 'Writing HTML & CSS…', 'Deploying to GitHub…']
       };
       const s = steps[currentAgent];
       setOutput(`<div class="loading-state">
         <div class="loading-ring"></div>
         <div class="loading-text">Agent is working…</div>
         <div class="loading-steps">
-          ${s.map((step, i) => `<div class="loading-step active" id="lstep-${i}"><div class="step-dot active"></div>${step}</div>`).join('')}
+          ${s.map((step, i) => `<div class="loading-step ${i===0?'active':''}" id="lstep-${i}"><div class="step-dot ${i===0?'active':''}"></div>${step}</div>`).join('')}
         </div>
       </div>`);
-      // Animate steps
       s.forEach((_, i) => setTimeout(() => {
         const el = document.getElementById('lstep-' + i);
         if (el) { el.classList.remove('active'); el.classList.add('done'); el.querySelector('.step-dot').classList.remove('active'); }
-      }, (i + 1) * 1200));
+        const next = document.getElementById('lstep-' + (i+1));
+        if (next) { next.classList.add('active'); next.querySelector('.step-dot').classList.add('active'); }
+      }, (i + 1) * 1800));
     }
 
     // ── DOWNLOAD PDF ──
@@ -587,31 +588,19 @@ Return ONLY the raw HTML code starting with <!DOCTYPE html>, nothing else.`
       const btn = document.getElementById('pdf-btn');
       btn.disabled = true;
       btn.textContent = '⏳ Generating…';
-
       const agentNames = { market: 'Market-Analysis', pitch: 'Pitch-Deck', brand: 'Brand-Kit', website: 'Website-Brief' };
-      const filename = `ApexPrime-${agentNames[currentAgent]}.pdf`;
-
       const element = document.getElementById('output-body');
-
-      const opt = {
-        margin: [10, 10, 10, 10],
-        filename,
+      html2pdf().set({
+        margin: [10,10,10,10],
+        filename: `ApexPrime-${agentNames[currentAgent]}.pdf`,
         image: { type: 'jpeg', quality: 0.95 },
-        html2canvas: {
-          scale: 2,
-          backgroundColor: '#08081a',
-          useCORS: true,
-          logging: false
-        },
+        html2canvas: { scale: 2, backgroundColor: '#08081a', useCORS: true, logging: false },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-      };
-
-      html2pdf().set(opt).from(element).save().then(() => {
+        pagebreak: { mode: ['avoid-all','css','legacy'] }
+      }).from(element).save().then(() => {
         btn.disabled = false;
         btn.textContent = '⬇ Download PDF';
-      }).catch(err => {
-        console.error(err);
+      }).catch(() => {
         btn.disabled = false;
         btn.textContent = '⬇ Download PDF';
         alert('PDF generation failed. Try again.');
@@ -619,31 +608,24 @@ Return ONLY the raw HTML code starting with <!DOCTYPE html>, nothing else.`
     }
 
     // ── RENDER RESULTS ──
-    function renderResult(agent, data) {
-      // Store result for saving
-      currentResult = data;
-      currentResultRaw = data;
+    let currentResult = null;
 
+    function renderResult(agent, data) {
+      currentResult = data;
       if (agent === 'market') renderMarket(data);
       else if (agent === 'pitch') renderPitch(data);
       else if (agent === 'brand') renderBrand(data);
       else if (agent === 'website') renderWebsite(data);
-
-      // Show export bar
       const actionsBar = document.getElementById('output-actions');
       if (actionsBar) {
         actionsBar.style.display = 'flex';
-        // Reset save button
         const saveBtn = document.getElementById('save-btn');
         if (saveBtn) {
           saveBtn.classList.remove('saved');
           saveBtn.innerHTML = '💾 Save to Project';
           saveBtn.disabled = false;
-        }
-        // Check if came from project page
-        const projectName = sessionStorage.getItem('apexprime_project_name');
-        if (projectName) {
-          if (saveBtn) saveBtn.innerHTML = `💾 Save to "${projectName}"`;
+          const projectName = sessionStorage.getItem('apexprime_project_name');
+          if (projectName) saveBtn.innerHTML = `💾 Save to "${projectName}"`;
         }
       }
     }
@@ -679,15 +661,15 @@ Return ONLY the raw HTML code starting with <!DOCTYPE html>, nothing else.`
         </div>
         <div class="result-section">
           <div class="result-label">Trends</div>
-          <div class="tag-list">${(d.trends || []).map(t => `<span class="tag">${t}</span>`).join('')}</div>
+          <div class="tag-list">${(d.trends||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
         </div>
         <div class="result-section">
           <div class="result-label">Opportunities</div>
-          <div class="tag-list">${(d.opportunities || []).map(t => `<span class="tag" style="border-color:rgba(0,255,136,.2);color:var(--green)">${t}</span>`).join('')}</div>
+          <div class="tag-list">${(d.opportunities||[]).map(t=>`<span class="tag" style="border-color:rgba(0,255,136,.2);color:var(--green)">${t}</span>`).join('')}</div>
         </div>
         <div class="result-section">
           <div class="result-label">Risks</div>
-          <div class="tag-list">${(d.risks || []).map(t => `<span class="tag" style="border-color:rgba(255,92,26,.2);color:var(--orange)">${t}</span>`).join('')}</div>
+          <div class="tag-list">${(d.risks||[]).map(t=>`<span class="tag" style="border-color:rgba(255,92,26,.2);color:var(--orange)">${t}</span>`).join('')}</div>
         </div>
         <div class="result-section">
           <div class="result-label">Go-To-Market Strategy</div>
@@ -699,23 +681,23 @@ Return ONLY the raw HTML code starting with <!DOCTYPE html>, nothing else.`
       setOutput(`
         <div class="result-section">
           <div class="result-label">Startup</div>
-          <p style="font-family:'Orbitron',monospace;font-size:1rem;font-weight:700;margin-bottom:6px">${d.startup_name || ''}</p>
-          <p class="summary-text" style="color:var(--cyan);font-style:italic">"${d.tagline || ''}"</p>
+          <p style="font-family:'Orbitron',monospace;font-size:1rem;font-weight:700;margin-bottom:6px">${d.startup_name||''}</p>
+          <p class="summary-text" style="color:var(--cyan);font-style:italic">"${d.tagline||''}"</p>
         </div>
         <div class="result-section">
           <div class="result-label">Investor Hook</div>
-          <p class="summary-text" style="color:var(--green)">${d.investor_hook || ''}</p>
+          <p class="summary-text" style="color:var(--green)">${d.investor_hook||''}</p>
         </div>
         <div class="result-section">
           <div class="result-label">Slides</div>
           <div class="slide-grid">
-            ${(d.slides || []).map(s => `
+            ${(d.slides||[]).map(s=>`
               <div class="slide-card">
                 <div class="slide-num">SLIDE ${s.slide}</div>
                 <div class="slide-title-badge">${s.title}</div>
                 <div class="slide-heading">${s.heading}</div>
                 <div class="slide-content">${s.content}</div>
-                ${s.key_point ? `<div class="slide-key">💡 ${s.key_point}</div>` : ''}
+                ${s.key_point?`<div class="slide-key">💡 ${s.key_point}</div>`:''}
               </div>`).join('')}
           </div>
         </div>`);
@@ -723,53 +705,53 @@ Return ONLY the raw HTML code starting with <!DOCTYPE html>, nothing else.`
 
     function renderBrand(d) {
       const colors = d.colors || {};
-      const colorKeys = ['primary', 'secondary', 'accent', 'background', 'text'];
+      const colorKeys = ['primary','secondary','accent','background','text'];
       setOutput(`
         <div class="result-section">
           <div class="result-label">Brand Identity</div>
-          <p style="font-family:'Orbitron',monospace;font-size:1rem;font-weight:700;margin-bottom:4px">${d.brand_name || ''}</p>
-          <p class="summary-text" style="color:var(--cyan);font-style:italic;margin-bottom:10px">"${d.tagline || ''}"</p>
-          <p class="summary-text">${d.brand_story || ''}</p>
+          <p style="font-family:'Orbitron',monospace;font-size:1rem;font-weight:700;margin-bottom:4px">${d.brand_name||''}</p>
+          <p class="summary-text" style="color:var(--cyan);font-style:italic;margin-bottom:10px">"${d.tagline||''}"</p>
+          <p class="summary-text">${d.brand_story||''}</p>
         </div>
         <div class="result-section">
           <div class="result-label">Color Palette</div>
           <div class="color-strip" style="margin-bottom:28px">
-            ${colorKeys.map(k => colors[k] ? `
+            ${colorKeys.map(k=>colors[k]?`
               <div style="flex:1">
                 <div class="color-swatch" style="background:${colors[k].hex};border:1px solid var(--border)"></div>
                 <div style="text-align:center;margin-top:6px">
                   <div style="font-size:.65rem;color:var(--white);font-weight:600">${colors[k].hex}</div>
                   <div style="font-size:.58rem;color:var(--muted)">${colors[k].name}</div>
                 </div>
-              </div>` : '').join('')}
+              </div>`:'').join('')}
           </div>
         </div>
         <div class="result-section">
           <div class="result-label">Typography</div>
           <div class="brand-font-row">
-            ${d.typography?.heading_font ? `<div class="font-card"><div class="font-name">HEADING</div><div class="font-preview" style="font-family:'${d.typography.heading_font.name}',sans-serif">${d.typography.heading_font.name}</div><div class="font-label">${d.typography.heading_font.style || ''}</div></div>` : ''}
-            ${d.typography?.body_font ? `<div class="font-card"><div class="font-name">BODY</div><div class="font-preview" style="font-family:'${d.typography.body_font.name}',sans-serif">${d.typography.body_font.name}</div><div class="font-label">${d.typography.body_font.style || ''}</div></div>` : ''}
+            ${d.typography?.heading_font?`<div class="font-card"><div class="font-name">HEADING</div><div class="font-preview">${d.typography.heading_font.name}</div><div class="font-label">${d.typography.heading_font.style||''}</div></div>`:''}
+            ${d.typography?.body_font?`<div class="font-card"><div class="font-name">BODY</div><div class="font-preview">${d.typography.body_font.name}</div><div class="font-label">${d.typography.body_font.style||''}</div></div>`:''}
           </div>
         </div>
         <div class="result-section">
           <div class="result-label">Logo Concept</div>
-          <p class="summary-text"><strong style="color:var(--cyan)">${d.logo_concept?.style || ''}</strong> — ${d.logo_concept?.description || ''}</p>
+          <p class="summary-text"><strong style="color:var(--cyan)">${d.logo_concept?.style||''}</strong> — ${d.logo_concept?.description||''}</p>
         </div>
         <div class="result-section">
           <div class="result-label">Brand Personality</div>
-          <div class="tag-list">${(d.personality || []).map(t => `<span class="tag" style="color:var(--cyan);border-color:rgba(0,240,255,.2)">${t}</span>`).join('')}</div>
+          <div class="tag-list">${(d.personality||[]).map(t=>`<span class="tag" style="color:var(--cyan);border-color:rgba(0,240,255,.2)">${t}</span>`).join('')}</div>
         </div>
         <div class="result-section">
           <div class="result-label">Voice & Tone</div>
-          <p class="summary-text"><strong style="color:var(--white)">${d.voice_tone?.tone || ''}</strong> — ${d.voice_tone?.writing_style || ''}</p>
-          ${d.voice_tone?.example_headline ? `<p class="summary-text" style="margin-top:8px;color:var(--cyan);font-style:italic">"${d.voice_tone.example_headline}"</p>` : ''}
+          <p class="summary-text"><strong style="color:var(--white)">${d.voice_tone?.tone||''}</strong> — ${d.voice_tone?.writing_style||''}</p>
+          ${d.voice_tone?.example_headline?`<p class="summary-text" style="margin-top:8px;color:var(--cyan);font-style:italic">"${d.voice_tone.example_headline}"</p>`:''}
         </div>
         <div class="result-section">
           <div class="result-label">Social Media Bios</div>
           <div class="social-row">
-            ${d.social_media?.instagram_bio ? `<div class="social-item"><div class="social-platform">Instagram</div><div class="social-text">${d.social_media.instagram_bio}</div></div>` : ''}
-            ${d.social_media?.twitter_bio ? `<div class="social-item"><div class="social-platform">X / Twitter</div><div class="social-text">${d.social_media.twitter_bio}</div></div>` : ''}
-            ${d.social_media?.linkedin_tagline ? `<div class="social-item"><div class="social-platform">LinkedIn</div><div class="social-text">${d.social_media.linkedin_tagline}</div></div>` : ''}
+            ${d.social_media?.instagram_bio?`<div class="social-item"><div class="social-platform">Instagram</div><div class="social-text">${d.social_media.instagram_bio}</div></div>`:''}
+            ${d.social_media?.twitter_bio?`<div class="social-item"><div class="social-platform">X / Twitter</div><div class="social-text">${d.social_media.twitter_bio}</div></div>`:''}
+            ${d.social_media?.linkedin_tagline?`<div class="social-item"><div class="social-platform">LinkedIn</div><div class="social-text">${d.social_media.linkedin_tagline}</div></div>`:''}
           </div>
         </div>`);
     }
@@ -778,20 +760,19 @@ Return ONLY the raw HTML code starting with <!DOCTYPE html>, nothing else.`
       const html = d.html || '';
       const liveUrl = d.live_url || null;
       window._generatedHTML = html;
-
       setOutput(`
         <div class="result-section">
           ${liveUrl ? `
           <div class="result-label">🚀 Live Website</div>
           <div style="background:rgba(0,255,136,.07);border:1px solid rgba(0,255,136,.2);padding:16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
             <div>
-              <div style="font-size:.7rem;color:var(--green);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">✓ Deployed to Vercel</div>
+              <div style="font-size:.7rem;color:var(--green);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">✓ Deployed</div>
               <div style="font-size:.82rem;color:var(--white);font-family:monospace">${liveUrl}</div>
             </div>
             <a href="${liveUrl}" target="_blank" style="font-family:Syne,sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--bg);background:var(--green);border:none;padding:9px 18px;text-decoration:none;white-space:nowrap;cursor:none">↗ Open Live Site</a>
           </div>` : ''}
           <div class="result-label">Preview</div>
-          ${html ? `<iframe class="website-preview" id="site-preview" srcdoc="${html.replace(/"/g,'&quot;').replace(/`/g,'\`')}"></iframe>` : '<div style="padding:40px;text-align:center;color:var(--muted)">Preview loading…</div>'}
+          ${html ? `<iframe class="website-preview" id="site-preview" srcdoc="${html.replace(/"/g,'&quot;')}"></iframe>` : '<div style="padding:40px;text-align:center;color:var(--muted)">No preview available</div>'}
           <div class="website-actions">
             <button class="btn-action primary" onclick="downloadSite()">⬇ Download HTML</button>
             <button class="btn-action" onclick="openSiteTab()">↗ Open in New Tab</button>
@@ -815,22 +796,13 @@ Return ONLY the raw HTML code starting with <!DOCTYPE html>, nothing else.`
     }
 
     // ── SAVE TO PROJECT ──
-    let currentResult = null;
-    let currentResultRaw = null;
-
     async function saveToProject() {
-      if (!currentResult && !currentResultRaw) return;
+      if (!currentResult) return;
       const btn = document.getElementById('save-btn');
-
-      // Check if there's a project in session (came from project page)
       const projectId = sessionStorage.getItem('apexprime_project_id');
-      const projectName = sessionStorage.getItem('apexprime_project_name');
-
       if (projectId) {
-        // Save directly to that project
         await saveResultToProject(projectId, btn);
       } else {
-        // Show project picker
         showProjectPicker(btn);
       }
     }
@@ -838,30 +810,21 @@ Return ONLY the raw HTML code starting with <!DOCTYPE html>, nothing else.`
     async function saveResultToProject(projectId, btn) {
       btn.disabled = true;
       btn.textContent = 'Saving…';
-
       const user = await ApexAuth.getUser();
       if (!user) { btn.disabled = false; btn.innerHTML = '💾 Save to Project'; return; }
-
       const client = ApexAuth.getClient();
-      const resultStr = JSON.stringify(currentResult || currentResultRaw);
-
-      // Update agent log with result
       const { error } = await client.from('agent_logs').insert([{
         project_id: projectId,
         user_id: user.id,
         agent_name: FORMS[currentAgent].title,
         status: 'done',
-        result: resultStr
+        result: JSON.stringify(currentResult)
       }]);
-
       if (!error) {
         btn.classList.add('saved');
         btn.innerHTML = '✓ Saved!';
         btn.disabled = false;
-        // Redirect to project page after 1.5s
-        setTimeout(() => {
-          window.location.href = 'project.html?id=' + projectId;
-        }, 1500);
+        setTimeout(() => { window.location.href = 'project.html?id=' + projectId; }, 1500);
       } else {
         btn.innerHTML = '⚠ Error saving';
         btn.disabled = false;
@@ -870,12 +833,7 @@ Return ONLY the raw HTML code starting with <!DOCTYPE html>, nothing else.`
 
     async function showProjectPicker(btn) {
       const projects = await ApexAuth.getProjects();
-      if (!projects.length) {
-        alert('No projects found. Create a project first in My Projects!');
-        return;
-      }
-
-      // Build simple picker
+      if (!projects.length) { alert('No projects found. Create a project first in My Projects!'); return; }
       const overlay = document.createElement('div');
       overlay.style.cssText = 'position:fixed;inset:0;background:rgba(4,4,10,.9);z-index:300;display:flex;align-items:center;justify-content:center;';
       overlay.innerHTML = `
@@ -883,10 +841,10 @@ Return ONLY the raw HTML code starting with <!DOCTYPE html>, nothing else.`
           <div style="font-family:Orbitron,monospace;font-size:.85rem;font-weight:700;margin-bottom:6px">Save to Project</div>
           <div style="font-size:.78rem;color:#6b6b8a;margin-bottom:20px">Select which project to save this result to</div>
           <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;max-height:240px;overflow-y:auto;">
-            ${projects.map(p => `
-              <div onclick="selectProjectSave('${p.id}', this)" style="padding:14px;background:#08081a;border:1px solid #141428;cursor:pointer;transition:border-color .2s" onmouseover="this.style.borderColor='rgba(0,240,255,.3)'" onmouseout="this.style.borderColor='#141428'">
+            ${projects.map(p=>`
+              <div onclick="selectProjectSave('${p.id}',this)" style="padding:14px;background:#08081a;border:1px solid #141428;cursor:pointer;transition:border-color .2s" onmouseover="this.style.borderColor='rgba(0,240,255,.3)'" onmouseout="this.style.borderColor='#141428'">
                 <div style="font-size:.82rem;font-weight:600">${p.name}</div>
-                <div style="font-size:.7rem;color:#6b6b8a;margin-top:3px">${p.description?.slice(0,60) || ''}…</div>
+                <div style="font-size:.7rem;color:#6b6b8a;margin-top:3px">${(p.description||'').slice(0,60)}…</div>
               </div>`).join('')}
           </div>
           <div style="display:flex;gap:10px">
@@ -903,7 +861,7 @@ Return ONLY the raw HTML code starting with <!DOCTYPE html>, nothing else.`
     function selectProjectSave(id, el) {
       window._selectedSaveProjectId = id;
       document.querySelectorAll('[onclick^="selectProjectSave"]').forEach(e => e.style.borderColor = '#141428');
-      el.style.borderColor = 'var(--cyan, #00f0ff)';
+      el.style.borderColor = '#00f0ff';
       const confirmBtn = document.getElementById('confirm-save-btn');
       if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.style.opacity = '1'; }
     }
@@ -938,8 +896,6 @@ Return ONLY the raw HTML code starting with <!DOCTYPE html>, nothing else.`
     // ── INIT ──
     renderForm('market');
     loadUser();
-
-    // Handle hash navigation
     const hash = window.location.hash.replace('#','');
     if (['market','pitch','brand','website'].includes(hash)) selectAgent(hash);
   </script>
