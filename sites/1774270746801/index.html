@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus - AI-Powered Workflow Automation</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00ffff;
+            --primary-hover: #33ffff;
+            --bg-dark: #0a0a0f;
+            --bg-darker: #0f0f1a;
+            --card-bg: #13131f;
+            --text-body: #c8c8d4;
+            --text-heading: #ffffff;
+            --border-color: rgba(255,255,255,0.07);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-body);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Space Grotesk', sans-serif;
+            color: var(--text-heading);
+            line-height: 1.2;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            transition: transform 0.3s ease;
+        }
+
+        nav.hidden {
+            transform: translateY(-100%);
+        }
+
+        nav .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: none;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-body);
+            text-decoration: none;
+            font-size: 15px;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-cta {
+            background: var(--primary);
+            color: var(--bg-dark);
+            padding: 10px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-cta:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding-top: 80px;
+        }
+
+        .gradient-mesh {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 255, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(138, 43, 226, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(0, 150, 255, 0.1) 0%, transparent 50%);
+            animation: meshMove 20s ease infinite;
+        }
+
+        @keyframes meshMove {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(50px, 30px) scale(1.1); }
+        }
+
+        .hero .container {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 48px;
+            align-items: center;
+        }
+
+        .hero-content h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            line-height: 1.1;
+        }
+
+        .hero-content h1 .word {
+            display: inline-block;
+            opacity: 0;
+            animation: wordReveal 0.6s ease forwards;
+        }
+
+        @keyframes wordReveal {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-content p {
+            font-size: 20px;
+            margin-bottom: 32px;
+            color: var(--text-body);
+            max-width: 540px;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--bg-dark);
+            padding: 14px 32px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            border: 2px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-primary:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 255, 255, 0.3);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-heading);
+            padding: 14px 32px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .browser-mockup {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .browser-header {
+            background: var(--bg-darker);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .browser-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background: #ff5f56; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #27c93f; }
+
+        .browser-content {
+            padding: 32px;
+            min-height: 400px;
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.05) 0%, rgba(138, 43, 226, 0.05) 100%);
+        }
+
+        .mock-element {
+            background: var(--bg-darker);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .mock-bar {
+            height: 8px;
+            background: var(--primary);
+            border-radius: 4px;
+            margin-bottom: 12px;
+            opacity: 0.6;
+        }
+
+        .mock-bar.short { width: 60%; }
+        .mock-bar.medium { width: 80%; }
+        .mock-bar.long { width: 100%; }
+
+        .mock-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .mock-card {
+            background: var(--bg-darker);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mock-card::before {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            opacity: 0.2;
+            border-radius: 50%;
+        }
+
+        /* Social Proof */
+        .social-proof {
+            padding: 80px 0;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .social-proof p {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 32px;
+            color: var(--text-body);
+        }
+
+        .logo-grid {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 48px;
+            flex-wrap: wrap;
+        }
+
+        .company-logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-body);
+            opacity: 0.6;
+            transition: opacity 0.3s ease;
+        }
+
+        .company-logo:hover {
+            opacity: 1;
+        }
+
+        /* Features */
+        .features {
+            padding: 120px 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .section-header h2 {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .section-header p {
+            font-size: 20px;
+            color: var(--text-body);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 32px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0, 255, 255, 0.1);
+            border-color: var(--primary);
+        }
+
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            background: rgba(0, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .feature-icon svg {
+            width: 28px;
+            height: 28px;
+            stroke: var(--primary);
+        }
+
+        .feature-card h3 {
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+
+        .feature-card p {
+            font-size: 16px;
+            color: var(--text-body);
+        }
+
+        /* How It Works */
+        .how-it-works {
+            padding: 120px 0;
+            background: var(--bg-darker);
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 48px;
+            margin-top: 64px;
+            position: relative;
+        }
+
+        .step {
+            display: flex;
+            gap: 32px;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            font-size: 64px;
+            font-weight: 700;
+            color: var(--primary);
+            opacity: 0.3;
+            font-family: 'Space Grotesk', sans-serif;
+            line-height: 1;
+            min-width: 80px;
+        }
+
+        .step-content h3 {
+            font-size: 28px;
+            margin-bottom: 12px;
+        }
+
+        .step-content p {
+            font-size: 18px;
+            color: var(--text-body);
+        }
+
+        /* Testimonials */
+        .testimonials {
+            padding: 120px 0;
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            margin-top: 64px;
+        }
+
+        .testimonial-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 32px;
+            transition: all 0.3s ease;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .testimonial-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), #8a2be2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 20px;
+            color: var(--bg-dark);
+        }
+
+        .testimonial-info h4 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .testimonial-info p {
+            font-size: 14px;
+            color: var(--text-body);
+        }
+
+        .stars {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 16px;
+        }
+
+        .star {
+            color: var(--primary);
+            font-size: 18px;
+        }
+
+        .testimonial-card blockquote {
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--text-body);
+            font-style: italic;
+        }
+
+        /* Pricing */
+        .pricing {
+            padding: 120px 0;
+            background: var(--bg-darker);
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            margin-top: 64px;
+        }
+
+        .pricing-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 40px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .pricing-card.featured {
+            border-color: var(--primary);
+            border-width: 2px;
+            transform: scale(1.02);
+        }
+
+        .pricing-card.featured::before {
+            content: 'MOST POPULAR';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: var(--bg-dark);
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .pricing-card.featured:hover {
+            transform: translateY(-4px) scale(1.02);
+        }
+
+        .pricing-header h3 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .pricing-header p {
+            color: var(--text-body);
+            margin-bottom: 24px;
+        }
+
+        .price {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .price span {
+            font-size: 18px;
+            color: var(--text-body);
+            font-weight: 400;
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin: 32px 0;
+        }
+
+        .pricing-features li {
+            padding: 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-body);
+        }
+
+        .pricing-features li::before {
+            content: '✓';
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .pricing-cta {
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            border: 2px solid var(--primary);
+            background: transparent;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pricing-card.featured .pricing-cta {
+            background: var(--primary);
+            color: var(--bg-dark);
+        }
+
+        .pricing-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 255, 255, 0.3);
+        }
+
+        /* FAQ */
+        .faq {
+            padding: 120px 0;
+        }
+
+        .faq-list {
+            max-width: 800px;
+            margin: 64px auto 0;
+        }
+
+        .faq-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .faq-question {
+            width: 100%;
+            padding: 24px;
+            background: transparent;
+            border: none;
+            color: var(--text-heading);
+            font-size: 18px;
+            font-weight: 600;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: color 0.3s ease;
+        }
+
+        .faq-question:hover {
+            color: var(--primary);
+        }
+
+        .faq-icon {
+            font-size: 24px;
+            transition: transform 0.3s ease;
+        }
+
+        .faq-item.active .faq-icon {
+            transform: rotate(45deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+            padding: 0 24px;
+            color: var(--text-body);
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 300px;
+            padding: 0 24px 24px;
+        }
+
+        /* Email CTA */
+        .email-cta {
+            padding: 120px 0;
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.1) 0%, rgba(138, 43, 226, 0.1) 100%);
+            text-align: center;
+        }
+
+        .email-cta h2 {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .email-cta p {
+            font-size: 20px;
+            margin-bottom: 40px;
+            color: var(--text-body);
+        }
+
+        .email-form {
+            display: flex;
+            gap: 12px;
+            max-width: 500px;
+            margin: 0 auto;
+            flex-direction: column;
+        }
+
+        .email-input {
+            flex: 1;
+            padding: 16px 24px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-heading);
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .email-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .email-submit {
+            padding: 16px 32px;
+            border-radius: 8px;
+            border: none;
+            background: var(--primary);
+            color: var(--bg-dark);
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .email-submit:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--bg-darker);
+            border-top: 1px solid var(--border-color);
+            padding: 80px 0 32px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 48px;
+            margin-bottom: 48px;
+        }
+
+        .footer-column h4 {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: var(--text-heading);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: var(--text-body);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        .footer-logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 16px;
+        }
+
+        .footer-tagline {
+            color: var(--text-body);
+            margin-bottom: 24px;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 16px;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-body);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-icon:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 32px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-body);
+            font-size: 14px;
+        }
+
+        /* Animations */
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-in-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+
+        .btn-primary.shimmer {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-hover) 50%, var(--primary) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 3s infinite;
+        }
+
+        /* Responsive */
+        @media (min-width: 768px) {
+            .nav-links {
+                display: flex;
+            }
+
+            .hero .container {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .testimonials-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .footer-content {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .email-form {
+                flex-direction: row;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .hero-content h1 {
+                font-size: 64px;
+            }
+
+            .features-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .steps {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .testimonials-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .footer-content {
+                grid-template-columns: 2fr 1fr 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav id="navbar">
+        <div class="container">
+            <a href="#" class="logo">Nexus</a>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="#faq">FAQ</a></li>
+            </ul>
+            <a href="#" class="nav-cta">Start Free Trial</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="gradient-mesh"></div>
+        <div class="container">
+            <div class="hero-content">
+                <h1>
+                    <span class="word" style="animation-delay: 0.1s;">Automate</span>
+                    <span class="word" style="animation-delay: 0.2s;">Your</span>
+                    <span class="word" style="animation-delay: 0.3s;">Workflow</span>
+                    <span class="word" style="animation-delay: 0.4s;">With</span>
+                    <span class="word" style="animation-delay: 0.5s;">AI</span>
+                    <span class="word" style="animation-delay: 0.6s;">Intelligence</span>
+                </h1>
+                <p>Transform repetitive tasks into automated workflows in minutes. No coding required, just powerful AI-driven automation.</p>
+                <div class="hero-cta">
+                    <a href="#" class="btn-primary shimmer">Get Started Free</a>
+                    <a href="#" class="btn-ghost">Watch Demo</a>
+                </div>
+            </div>
+            <div class="browser-mockup">
+                <div class="browser-header">
+                    <div class="browser-dot dot-red"></div>
+                    <div class="browser-dot dot-yellow"></div>
+                    <div class="browser-dot dot-green"></div>
+                </div>
+                <div class="browser-content">
+                    <div class="mock-element">
+                        <div class="mock-bar short"></div>
+                        <div class="mock-bar medium"></div>
+                        <div class="mock-bar long"></div>
+                    </div>
+                    <div class="mock-element">
+                        <div class="mock-bar medium"></div>
+                        <div class="mock-bar short"></div>
+                    </div>
+                    <div class="mock-grid">
+                        <div class="mock-card"></div>
+                        <div class="mock-card"></div>
+                        <div class="mock-card"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="social-proof">
+        <div class="container">
+            <p>Trusted by 10,000+ founders worldwide</p>
+            <div class="logo-grid">
+                <div class="company-logo">TechFlow</div>
+                <div class="company-logo">DataVerse</div>
+                <div class="company-logo">CloudSync</div>
+                <div class="company-logo">AutoScale</div>
+                <div class="company-logo">FlowState</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header fade-in-up">
+                <h2>Everything you need to automate</h2>
+                <p>Powerful features that save you hours every single day</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card fade-in-up">
+                    <div class="feature-icon">
+                        <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                    <h3>Smart Triggers</h3>
+                    <p>Set up intelligent triggers that activate workflows based on time, events, or custom conditions. Your automation starts exactly when you need it.</p>
+                </div>
+                <div class="feature-card fade-in-up">
+                    <div class="feature-icon">
+                        <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </div>
+                    <h3>Enterprise Security</h3>
+                    <p>Bank-level encryption and SOC 2 compliance ensure your data stays protected. Full audit logs and role-based access control included.</p>
+                </div>
+                <div class="feature-card fade-in-up">
+                    <div class="feature-icon">
+                        <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+                        </svg>
+                    </div>
+                    <h3>Visual Builder</h3>
+                    <p>Drag-and-drop interface makes creating complex workflows simple. No coding knowledge required, yet powerful enough for developers.</p>
+                </div>
+                <div class="feature-card fade-in-up">
+                    <div class="feature-icon">
+                        <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <h3>API Integration</h3>
+                    <p>Connect with 500+ apps and services instantly. Custom webhooks and REST API support for unlimited possibilities.</p>
+                </div>
+                <div class="feature-card fade-in-up">
+                    <div class="feature-icon">
+                        <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                    </div>
+                    <h3>Real-Time Analytics</h3>
+                    <p>Monitor workflow performance with detailed analytics. Track success rates, execution times, and optimize for maximum efficiency.</p>
+                </div>
+                <div class="feature-card fade-in-up">
+                    <div class="feature-icon">
+                        <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </div>
+                    <h3>Team Collaboration</h3>
+                    <p>Share workflows with your team, set permissions, and collaborate in real-time. Comments and version control keep everyone aligned.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <div class="section-header fade-in-up">
+                <h2>How it works</h2>
+                <p>Get started in three simple steps</p>
+            </div>
+            <div class="steps">
+                <div class="step fade-in-up">
+                    <div class="step-number">01</div>
+                    <div class="step-content">
+                        <h3>Connect Your Tools</h3>
+                        <p>Link your favorite apps and services with one click. We support over 500 integrations including Slack, Gmail, Salesforce, and more.</p>
+                    </div>
+                </div>
+                <div class="step fade-in-up">
+                    <div class="step-number">02</div>
+                    <div class="step-content">
+                        <h3>Build Your Workflow</h3>
+                        <p>Use our visual builder to create automation workflows. Drag, drop, and configure triggers and actions without writing a single line of code.</p>
+                    </div>
+                </div>
+                <div class="step fade-in-up">
+                    <div class="step-number">03</div>
+                    <div class="step-content">
+                        <h3>Automate Everything</h3>
+                        <p>Activate your workflows and watch them run automatically. Save hours every week while our AI handles the repetitive tasks for you.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="testimonials">
+        <div class="container">
+            <div class="section-header fade-in-up">
+                <h2>Loved by teams worldwide</h2>
+                <p>See what our customers have to say</p>
+            </div>
+            <div class="testimonials-grid">
+                <div class="testimonial-card fade-in-up">
+                    <div class="testimonial-header">
+                        <div class="avatar">SM</div>
+                        <div class="testimonial-info">
+                            <h4>Sarah Mitchell</h4>
+                            <p>Head of Operations, TechStart</p>
+                        </div>
+                    </div>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                    <blockquote>Nexus has completely transformed how our team operates. We've automated our entire onboarding process and saved over 20 hours per week. The ROI was immediate and the platform is incredibly intuitive.</blockquote>
+                </div>
+                <div class="testimonial-card fade-in-up">
+                    <div class="testimonial-header">
+                        <div class="avatar">JC</div>
+                        <div class="testimonial-info">
+                            <h4>James Chen</h4>
+                            <p>Founder & CEO, DataFlow</p>
+                        </div>
+                    </div>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                    <blockquote>As a non-technical founder, I was amazed at how easy it was to build complex workflows. The visual builder is genius and the AI suggestions actually understand what I'm trying to accomplish. Game changer for our startup.</blockquote>
+                </div>
+                <div class="testimonial-card fade-in-up">
+                    <div class="testimonial-header">
+                        <div class="avatar">ER</div>
+                        <div class="testimonial-info">
+                            <h4>Emily Rodriguez</h4>
+                            <p>Product Manager, CloudScale</p>
+                        </div>
+                    </div>
+                    <div class="stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                    <blockquote>The integration capabilities are outstanding. We connected our entire tech stack in under an hour and the workflows just work. Support team is incredibly responsive and helpful whenever we need them.</blockquote>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="pricing" id="pricing">
+        <div class="container">
+            <div class="section-header fade-in-up">
+                <h2>Simple, transparent pricing</h2>
+                <p>Choose the plan that fits your needs</p>
+            </div>
+            <div class="pricing-grid">
+                <div class="pricing-card fade-in-up">
+                    <div class="pricing-header">
+                        <h3>Starter</h3>
+                        <p>Perfect for individuals</p>
+                    </div>
+                    <div class="price">$29<span>/month</span></div>
+                    <ul class="pricing-features">
+                        <li>Up to 1,000 tasks/month</li>
+                        <li>50+ app integrations</li>
+                        <li>Basic analytics</li>
+                        <li>Email support</li>
+                        <li>Single user</li>
+                    </ul>
+                    <button class="pricing-cta">Start Free Trial</button>
+                </div>
+                <div class="pricing-card featured fade-in-up">
+                    <div class="pricing-header">
+                        <h3>Professional</h3>
+                        <p>For growing teams</p>
+                    </div>
+                    <div class="price">$99<span>/month</span></div>
+                    <ul class="pricing-features">
+                        <li>Up to 10,000 tasks/month</li>
+                        <li>500+ app integrations</li>
+                        <li>Advanced analytics</li>
+                        <li>Priority support</li>
+                        <li>Up to 10 users</li>
+                        <li>Custom webhooks</li>
+                        <li>Version control</li>
+                    </ul>
+                    <button class="pricing-cta">Start Free Trial</button>
+                </div>
+                <div class="pricing-card fade-in-up">
+                    <div class="pricing-header">
+                        <h3>Enterprise</h3>
+                        <p>For large organizations</p>
+                    </div>
+                    <div class="price">$299<span>/month</span></div>
+                    <ul class="pricing-features">
+                        <li>Unlimited tasks</li>
+                        <li>All integrations</li>
+                        <li>Real-time analytics</li>
+                        <li>24/7 dedicated support</li>
+                        <li>Unlimited users</li>
+                        <li>Custom integrations</li>
+                        <li>SLA guarantee</li>
+                        <li>On-premise option</li>
+                    </ul>
+                    <button class="pricing-cta">Contact Sales</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="faq" id="faq">
+        <div class="container">
+            <div class="section-header fade-in-up">
+                <h2>Frequently asked questions</h2>
+                <p>Everything you need to know</p>
+            </div>
+            <div class="faq-list">
+                <div class="faq-item fade-in-up">
+                    <button class="faq-question">
+                        <span>Do I need coding knowledge to use Nexus?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Not at all! Nexus is designed for everyone, regardless of technical background. Our visual workflow builder uses a simple drag-and-drop interface that anyone can master in minutes. However, if you are technical, we also offer advanced features like custom code blocks and API access.</p>
+                    </div>
+                </div>
+                <div class="faq-item fade-in-up">
+                    <button class="faq-question">
+                        <span>How long does it take to set up my first workflow?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Most users create their first workflow in under 10 minutes. We provide pre-built templates for common use cases, so you can start with a proven workflow and customize it to your needs. Our onboarding wizard guides you through each step of the process.</p>
+                    </div>
+                </div>
+                <div class="faq-item fade-in-up">
+                    <button class="faq-question">
+                        <span>What happens if I exceed my plan's task limit?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>We'll notify you when you're approaching your limit. Your workflows will continue to run, and we'll simply charge for additional tasks at a small per-task rate. You can also upgrade your plan at any time to get a better rate and more included tasks.</p>
+                    </div>
+                </div>
+                <div class="faq-item fade-in-up">
+                    <button class="faq-question">
+                        <span>Can I cancel my subscription anytime?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Yes, absolutely. There are no long-term contracts or cancellation fees. You can cancel your subscription at any time from your account settings. You'll retain access until the end of your current billing period, and we'll even help you export all your workflows.</p>
+                    </div>
+                </div>
+                <div class="faq-item fade-in-up">
+                    <button class="faq-question">
+                        <span>Is my data secure with Nexus?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Security is our top priority. We use bank-level 256-bit encryption for all data in transit and at rest. We're SOC 2 Type II certified and GDPR compliant. All data is stored in secure, redundant data centers with regular backups. We never sell or share your data with third parties.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="email-cta">
+        <div class="container">
+            <div class="fade-in-up">
+                <h2>Start automating today</h2>
+                <p>Join thousands of teams saving time with AI-powered workflows</p>
+                <form class="email-form">
+                    <input type="email" class="email-input" placeholder="Enter your work email" required>
+                    <button type="submit" class="email-submit">Get Started Free</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <div class="footer-logo">Nexus</div>
+                    <p class="footer-tagline">AI-powered workflow automation that saves you hours every day.</p>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon">𝕏</a>
+                        <a href="#" class="social-icon">in</a>
+                        <a href="#" class="social-icon">f</a>
+                        <a href="#" class="social-icon">▶</a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h4>Product</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Features</a></li>
+                        <li><a href="#">Integrations</a></li>
+                        <li><a href="#">Pricing</a></li>
+                        <li><a href="#">Templates</a></li>
+                        <li><a href="#">Changelog</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Company</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">About</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">Press Kit</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Legal</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Security</a></li>
+                        <li><a href="#">GDPR</a></li>
+                        <li><a href="#">Compliance</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Nexus. All rights reserved. Built with passion for automation.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Navbar scroll behavior
+        let lastScroll = 0;
+        const navbar = document.getElementById('navbar');
+
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            
+            if (currentScroll <= 0) {
+                navbar.classList.remove('hidden');
+                return;
+            }
+            
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                navbar.classList.add('hidden');
+            } else {
+                navbar.classList.remove('hidden');
+            }
+            
+            lastScroll = currentScroll;
+        });
+
+        // Smooth scroll for nav links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in-up').forEach(el => {
+            observer.observe(el);
+        });
+
+        // FAQ accordion
+        document.querySelectorAll('.faq-question').forEach(button => {
+            button.addEventListener('click', () => {
+                const faqItem = button.parentElement;
+                const isActive = faqItem.classList.contains('active');
+                
+                // Close all FAQ items
+                document.querySelectorAll('.faq-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // Open clicked item if it wasn't active
+                if (!isActive) {
+                    faqItem.classList.add('active');
+                }
+            });
+        });
+
+        // Email form submission
+        document.querySelector('.email-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = e.target.querySelector('.email-input').value;
+            alert(`Thanks for signing up! We'll send a confirmation to ${email}`);
+            e.target.reset();
+        });
+
+        // Pricing card staggered animation
+        const pricingCards = document.querySelectorAll('.pricing-card');
+        pricingCards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+        });
+
+        // Feature card staggered animation
+        const featureCards = document.querySelectorAll('.feature-card');
+        featureCards.forEach((card, index) => {
+            card.style.transitionDelay = `${index * 0.1}s`;
+        });
+    </script>
+</body>
+</html>
