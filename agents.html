@@ -290,7 +290,7 @@
       market:  'https://xan1ameba.app.n8n.cloud/webhook/market-analysis',
       pitch:   null,
       brand:   null,
-      website: 'https://xan1ameba.app.n8n.cloud/webhook/website-generator'
+      website: 'https://xan1ameba.app.n8n.cloud/webhook-test/website-generator'
     };
 
     // ── OPENROUTER (fallback for agents without webhook) ──
@@ -489,25 +489,36 @@ Return exactly this JSON:
           if (raw.success && raw.data) {
             // Standard shape: { success: true, data: { html, live_url } }
             html = raw.data.html || '';
-            liveUrl = raw.data.live_url || '';
+            liveUrl = raw.data.live_url || raw.data.url || raw.data.vercel_url || '';
           } else if (raw.html) {
             // Flat shape: { html: '...' }
             html = raw.html;
-            liveUrl = raw.live_url || '';
+            liveUrl = raw.live_url || raw.url || raw.vercel_url || '';
           } else if (raw.data && raw.data.html) {
             // Nested shape: { data: { html: '...' } }
             html = raw.data.html;
-            liveUrl = raw.data.live_url || '';
+            liveUrl = raw.data.live_url || raw.data.url || '';
           } else if (typeof raw === 'string' && raw.includes('<html')) {
             // Raw HTML string returned directly
             html = raw;
+          } else if (raw.live_url || raw.url || raw.vercel_url || raw.site_url || raw.deploymentUrl) {
+            // URL-only response — n8n deployed to Vercel and returned the live URL
+            liveUrl = raw.live_url || raw.url || raw.vercel_url || raw.site_url || raw.deploymentUrl;
+          } else if (Array.isArray(raw) && raw[0]) {
+            // n8n sometimes wraps response in an array
+            const item = raw[0];
+            html = item.html || item.data?.html || '';
+            liveUrl = item.live_url || item.url || item.vercel_url || item.site_url || item.data?.live_url || '';
+          } else if (typeof raw === 'string' && (raw.startsWith('http') || raw.includes('vercel'))) {
+            // Plain URL string returned
+            liveUrl = raw.trim();
           } else {
             // Nothing matched — show debug info
             throw new Error('Unexpected response from n8n. Debug: ' + JSON.stringify(raw).slice(0, 400));
           }
 
-          if (!html || !html.includes('<')) {
-            throw new Error('n8n returned empty or invalid HTML. Check your Parse HTML and Finalize nodes in n8n.');
+          if (!html && !liveUrl) {
+            throw new Error('n8n returned an empty response. Check your Finalize and Respond to Webhook nodes.');
           }
 
           renderResult('website', { html, live_url: liveUrl });
@@ -760,24 +771,65 @@ Return exactly this JSON:
       const html = d.html || '';
       const liveUrl = d.live_url || null;
       window._generatedHTML = html;
+      window._generatedURL = liveUrl;
+
+      // Build the live URL banner
+      const urlBanner = liveUrl ? `
+        <div style="background:rgba(0,255,136,.07);border:1px solid rgba(0,255,136,.2);padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+          <div style="min-width:0;flex:1">
+            <div style="font-size:.62rem;color:var(--green);text-transform:uppercase;letter-spacing:.12em;margin-bottom:5px">✓ Deployed &amp; Live</div>
+            <div style="font-size:.8rem;color:var(--white);font-family:monospace;word-break:break-all">${liveUrl}</div>
+          </div>
+          <a href="${liveUrl}" target="_blank" id="launch-btn" style="font-family:Syne,sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--bg);background:var(--green);padding:10px 20px;text-decoration:none;white-space:nowrap;flex-shrink:0;transition:opacity .2s">↗ Open Live Site</a>
+        </div>` : '';
+
+      // Build preview: prefer srcdoc (HTML), fallback to src (URL), fallback to message
+      let previewHtml = '';
+      if (html && html.includes('<')) {
+        previewHtml = `<iframe class="website-preview" id="site-preview" srcdoc="${html.replace(/"/g,'&quot;')}"></iframe>`;
+      } else if (liveUrl) {
+        previewHtml = `
+          <div style="position:relative;width:100%;height:400px;">
+            <iframe class="website-preview" id="site-preview" src="${liveUrl}" style="border:1px solid var(--border)" onload="this.nextElementSibling.style.display='none'" onerror="this.style.display='none'"></iframe>
+            <div id="iframe-fallback" style="display:none;position:absolute;inset:0;background:rgba(8,8,26,.95);border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:32px;">
+              <div style="font-size:2rem;opacity:.5">🌐</div>
+              <div style="font-size:.8rem;color:var(--muted)">Preview blocked by browser security.<br>Click the button above to open the live site.</div>
+              <a href="${liveUrl}" target="_blank" style="font-family:Syne,sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--bg);background:var(--cyan);padding:10px 22px;text-decoration:none;">↗ Open in New Tab</a>
+            </div>
+          </div>`;
+      } else {
+        previewHtml = '<div style="padding:40px;text-align:center;color:var(--muted)">No preview available</div>';
+      }
+
+      // Action buttons
+      const downloadBtn = html ? `<button class="btn-action primary" onclick="downloadSite()">⬇ Download HTML</button>` : '';
+      const newTabBtn = liveUrl
+        ? `<a href="${liveUrl}" target="_blank" class="btn-action" style="text-decoration:none;text-align:center">↗ Open in New Tab</a>`
+        : `<button class="btn-action" onclick="openSiteTab()" ${!html ? 'disabled' : ''}>↗ Open in New Tab</button>`;
+
       setOutput(`
         <div class="result-section">
-          ${liveUrl ? `
           <div class="result-label">🚀 Live Website</div>
-          <div style="background:rgba(0,255,136,.07);border:1px solid rgba(0,255,136,.2);padding:16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
-            <div>
-              <div style="font-size:.7rem;color:var(--green);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">✓ Deployed</div>
-              <div style="font-size:.82rem;color:var(--white);font-family:monospace">${liveUrl}</div>
-            </div>
-            <a href="${liveUrl}" target="_blank" style="font-family:Syne,sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--bg);background:var(--green);border:none;padding:9px 18px;text-decoration:none;white-space:nowrap;cursor:none">↗ Open Live Site</a>
-          </div>` : ''}
+          ${urlBanner}
           <div class="result-label">Preview</div>
-          ${html ? `<iframe class="website-preview" id="site-preview" srcdoc="${html.replace(/"/g,'&quot;')}"></iframe>` : '<div style="padding:40px;text-align:center;color:var(--muted)">No preview available</div>'}
-          <div class="website-actions">
-            <button class="btn-action primary" onclick="downloadSite()">⬇ Download HTML</button>
-            <button class="btn-action" onclick="openSiteTab()">↗ Open in New Tab</button>
-          </div>
+          ${previewHtml}
+          <div class="website-actions">${downloadBtn}${newTabBtn}</div>
         </div>`);
+
+      // Iframe fallback: show message after short timeout if iframe is blocked
+      if (liveUrl && !html) {
+        setTimeout(() => {
+          const fb = document.getElementById('iframe-fallback');
+          const frame = document.getElementById('site-preview');
+          if (fb && frame) {
+            try {
+              const doc = frame.contentDocument || frame.contentWindow?.document;
+              if (!doc || doc.body === null) fb.style.display = 'flex';
+            } catch(e) { fb.style.display = 'flex'; }
+          }
+        }, 3000);
+      }
+
       document.querySelectorAll('.btn-action,a').forEach(addHover);
     }
 
