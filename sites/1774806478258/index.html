@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus - AI-Powered Workflow Automation Platform</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00ffff;
+            --primary-hover: #33ffff;
+            --bg-dark: #0a0a0f;
+            --bg-darker: #0f0f1a;
+            --card-bg: #13131f;
+            --text-body: #c8c8d4;
+            --text-heading: #ffffff;
+            --border-color: rgba(255,255,255,0.07);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-body);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Space Grotesk', sans-serif;
+            color: var(--text-heading);
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            transition: transform 0.3s ease;
+        }
+
+        nav.hidden {
+            transform: translateY(-100%);
+        }
+
+        nav .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .nav-links {
+            display: none;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-body);
+            text-decoration: none;
+            font-size: 15px;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-cta {
+            background: var(--primary);
+            color: var(--bg-dark);
+            padding: 10px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .nav-cta:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding-top: 80px;
+        }
+
+        .hero-background {
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 255, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(138, 43, 226, 0.15) 0%, transparent 50%),
+                var(--bg-dark);
+            animation: gradientShift 10s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .hero .container {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 48px;
+            align-items: center;
+        }
+
+        .hero-content h1 {
+            font-size: 48px;
+            margin-bottom: 24px;
+            line-height: 1.1;
+        }
+
+        .hero-content h1 .highlight {
+            color: var(--primary);
+        }
+
+        .typewriter {
+            overflow: hidden;
+            border-right: 3px solid var(--primary);
+            white-space: nowrap;
+            animation: typing 2s steps(40) 1s forwards, blink 0.75s step-end infinite;
+            display: inline-block;
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        @keyframes blink {
+            50% { border-color: transparent; }
+        }
+
+        .hero-content p {
+            font-size: 20px;
+            margin-bottom: 32px;
+            color: var(--text-body);
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary, .btn-ghost {
+            padding: 14px 32px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--bg-dark);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-primary:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 255, 255, 0.3);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-ghost:hover {
+            background: rgba(0, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .browser-mockup {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+        }
+
+        .browser-header {
+            background: var(--bg-darker);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .browser-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .browser-dot:nth-child(1) { background: #ff5f56; }
+        .browser-dot:nth-child(2) { background: #ffbd2e; }
+        .browser-dot:nth-child(3) { background: #27c93f; }
+
+        .browser-content {
+            padding: 24px;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .mock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .mock-title {
+            height: 24px;
+            width: 120px;
+            background: linear-gradient(90deg, var(--primary), rgba(0, 255, 255, 0.3));
+            border-radius: 4px;
+        }
+
+        .mock-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .mock-btn {
+            width: 60px;
+            height: 28px;
+            background: rgba(0, 255, 255, 0.2);
+            border-radius: 6px;
+        }
+
+        .mock-workflow {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .mock-card {
+            background: var(--bg-darker);
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .mock-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), rgba(138, 43, 226, 0.6));
+            border-radius: 8px;
+        }
+
+        .mock-text {
+            flex: 1;
+        }
+
+        .mock-line {
+            height: 12px;
+            background: rgba(200, 200, 212, 0.3);
+            border-radius: 4px;
+            margin-bottom: 6px;
+        }
+
+        .mock-line.short {
+            width: 60%;
+        }
+
+        /* Social Proof */
+        .social-proof {
+            padding: 48px 0;
+            background: var(--bg-darker);
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .social-proof-content {
+            text-align: center;
+        }
+
+        .social-proof-content p {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 32px;
+            color: var(--text-body);
+        }
+
+        .company-logos {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 48px;
+            flex-wrap: wrap;
+        }
+
+        .company-logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: rgba(200, 200, 212, 0.5);
+            transition: color 0.3s;
+        }
+
+        .company-logo:hover {
+            color: var(--primary);
+        }
+
+        /* Features */
+        .features {
+            padding: 120px 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .section-header h2 {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .section-header p {
+            font-size: 20px;
+            color: var(--text-body);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 32px;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+            border-color: rgba(0, 255, 255, 0.3);
+        }
+
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            margin-bottom: 20px;
+        }
+
+        .feature-icon svg {
+            width: 100%;
+            height: 100%;
+            stroke: var(--primary);
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .feature-card h3 {
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+
+        .feature-card p {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        /* How It Works */
+        .how-it-works {
+            padding: 120px 0;
+            background: var(--bg-darker);
+        }
+
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 48px;
+            margin-top: 64px;
+            position: relative;
+        }
+
+        .step {
+            display: flex;
+            gap: 32px;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            font-size: 64px;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1;
+            min-width: 80px;
+        }
+
+        .step-content h3 {
+            font-size: 28px;
+            margin-bottom: 12px;
+        }
+
+        .step-content p {
+            font-size: 18px;
+            line-height: 1.7;
+        }
+
+        /* Testimonials */
+        .testimonials {
+            padding: 120px 0;
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            margin-top: 64px;
+        }
+
+        .testimonial-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 32px;
+            transition: all 0.3s;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .testimonial-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), rgba(138, 43, 226, 0.6));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 20px;
+            color: var(--bg-dark);
+        }
+
+        .testimonial-info h4 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .testimonial-info p {
+            font-size: 14px;
+            color: var(--text-body);
+        }
+
+        .stars {
+            color: var(--primary);
+            margin-bottom: 16px;
+            font-size: 18px;
+        }
+
+        .testimonial-card blockquote {
+            font-size: 16px;
+            line-height: 1.7;
+            font-style: italic;
+        }
+
+        /* Pricing */
+        .pricing {
+            padding: 120px 0;
+            background: var(--bg-darker);
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            margin-top: 64px;
+        }
+
+        .pricing-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 40px;
+            transition: all 0.3s;
+        }
+
+        .pricing-card.featured {
+            border-color: var(--primary);
+            box-shadow: 0 0 48px rgba(0, 255, 255, 0.2);
+            transform: scale(1.02);
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .pricing-card.featured:hover {
+            transform: translateY(-4px) scale(1.02);
+        }
+
+        .pricing-header {
+            text-align: center;
+            padding-bottom: 32px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 32px;
+        }
+
+        .pricing-header h3 {
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+
+        .pricing-header .price {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .pricing-header .price span {
+            font-size: 20px;
+            color: var(--text-body);
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 32px;
+        }
+
+        .pricing-features li {
+            padding: 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .pricing-features li::before {
+            content: '✓';
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .pricing-card .btn-primary,
+        .pricing-card .btn-ghost {
+            width: 100%;
+            text-align: center;
+        }
+
+        /* FAQ */
+        .faq {
+            padding: 120px 0;
+        }
+
+        .faq-list {
+            max-width: 800px;
+            margin: 64px auto 0;
+        }
+
+        .faq-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .faq-question {
+            padding: 24px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 18px;
+            color: var(--text-heading);
+            transition: color 0.3s;
+        }
+
+        .faq-question:hover {
+            color: var(--primary);
+        }
+
+        .faq-icon {
+            font-size: 24px;
+            transition: transform 0.3s;
+        }
+
+        .faq-item.active .faq-icon {
+            transform: rotate(45deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .faq-answer-content {
+            padding: 0 24px 24px;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+
+        /* Email CTA */
+        .email-cta {
+            padding: 120px 0;
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(138, 43, 226, 0.1));
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .email-cta-content {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .email-cta-content h2 {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .email-cta-content p {
+            font-size: 20px;
+            margin-bottom: 32px;
+        }
+
+        .email-form {
+            display: flex;
+            gap: 12px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .email-form input {
+            flex: 1;
+            padding: 14px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-heading);
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .email-form input::placeholder {
+            color: var(--text-body);
+        }
+
+        .email-form input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .email-form button {
+            padding: 14px 32px;
+            background: var(--primary);
+            color: var(--bg-dark);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .email-form button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--bg-darker);
+            padding: 80px 0 24px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 48px;
+            margin-bottom: 48px;
+        }
+
+        .footer-column h4 {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: var(--text-heading);
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 12px;
+        }
+
+        .footer-column ul li a {
+            color: var(--text-body);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-column ul li a:hover {
+            color: var(--primary);
+        }
+
+        .footer-logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 16px;
+        }
+
+        .footer-tagline {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-body);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .social-icon:hover {
+            background: var(--primary);
+            color: var(--bg-dark);
+            border-color: var(--primary);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+            font-size: 14px;
+            color: var(--text-body);
+        }
+
+        /* Animations */
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-in-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+
+        .btn-primary {
+            background-image: linear-gradient(
+                90deg,
+                var(--primary) 0%,
+                var(--primary-hover) 50%,
+                var(--primary) 100%
+            );
+            background-size: 200% auto;
+            animation: shimmer 3s linear infinite;
+        }
+
+        /* Responsive */
+        @media (min-width: 768px) {
+            .nav-links {
+                display: flex;
+            }
+
+            .hero .container {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .hero-content h1 {
+                font-size: 56px;
+            }
+
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .testimonials-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .footer-content {
+                grid-template-columns: 2fr 1fr 1fr 1fr;
+            }
+
+            .email-form {
+                flex-direction: row;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .hero-content h1 {
+                font-size: 64px;
+            }
+
+            .features-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .testimonials-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .steps {
+                flex-direction: row;
+            }
+
+            .step {
+                flex-direction: column;
+                text-align: center;
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .email-form {
+                flex-direction: column;
+            }
+
+            .email-form button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav id="navbar">
+        <div class="container">
+            <div class="logo">Nexus</div>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="#faq">FAQ</a></li>
+            </ul>
+            <a href="#" class="nav-cta">Start Free Trial</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-background"></div>
+        <div class="container">
+            <div class="hero-content">
+                <h1>Automate Everything, <span class="highlight">Focus on Growth</span></h1>
+                <p>Connect your tools, eliminate repetitive tasks, and build powerful workflows in minutes without writing a single line of code.</p>
+                <div class="hero-buttons">
+                    <a href="#" class="btn-primary">Get Started Free</a>
+                    <a href="#" class="btn-ghost">Watch Demo</a>
+                </div>
+            </div>
+            <div class="browser-mockup">
+                <div class="browser-header">
+                    <div class="browser-dot"></div>
+                    <div class="browser-dot"></div>
+                    <div class="browser-dot"></div>
+                </div>
+                <div class="browser-content">
+                    <div class="mock-header">
+                        <div class="mock-title"></div>
+                        <div class="mock-actions">
+                            <div class="mock-btn"></div>
+                            <div class="mock-btn"></div>
+                        </div>
+                    </div>
+                    <div class="mock-workflow">
+                        <div class="mock-card">
+                            <div class="mock-icon"></div>
+                            <div class="mock-text">
+                                <div class="mock-line"></div>
+                                <div class="mock-line short"></div>
+                            </div>
+                        </div>
+                        <div class="mock-card">
+                            <div class="mock-icon"></div>
+                            <div class="mock-text">
+                                <div class="mock-line"></div>
+                                <div class="mock-line short"></div>
+                            </div>
+                        </div>
+                        <div class="mock-card">
+                            <div class="mock-icon"></div>
+                            <div class="mock-text">
+                                <div class="mock-line"></div>
+                                <div class="mock-line short"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="social-proof">
+        <div class="container">
+            <div class="social-proof-content">
+                <p>Trusted by 10,000+ founders worldwide</p>
+                <div class="company-logos">
+                    <div class="company-logo">TechFlow</div>
+                    <div class="company-logo">DataSync</div>
+                    <div class="company-logo">CloudVault</div>
+                    <div class="company-logo">StreamLine</div>
+                    <div class="company-logo">PulseAI</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header fade-in-up">
+                <h2>Everything you need to automate</h2>
+                <p>Powerful features that transform how you work</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card fade-in-up">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z"/>
+                        </svg>
+                    </div>
+                    <h3>Lightning Fast Triggers</h3>
+                    <p>Instantly activate workflows when events occur across your connected apps. Real-time execution ensures nothing falls through the cracks.</p>
+                </div>
+                <div class="feature-card fade-in-up">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                    </div>
+                    <h3>Smart Scheduling</h3>
+                    <p>Set up time-based automations that run exactly when you need them. From daily reports to monthly invoices, we've got you covered.</p>
+                </div>
+                <div class="feature-card fade-in-up">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4
