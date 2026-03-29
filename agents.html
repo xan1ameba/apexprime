@@ -777,10 +777,11 @@ Return exactly this JSON:
       const urlBanner = liveUrl ? `
         <div style="background:rgba(0,255,136,.07);border:1px solid rgba(0,255,136,.2);padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
           <div style="min-width:0;flex:1">
-            <div style="font-size:.62rem;color:var(--green);text-transform:uppercase;letter-spacing:.12em;margin-bottom:5px">✓ Deployed &amp; Live</div>
+            <div style="font-size:.62rem;color:var(--green);text-transform:uppercase;letter-spacing:.12em;margin-bottom:4px">✓ Deployed to Vercel</div>
             <div style="font-size:.8rem;color:var(--white);font-family:monospace;word-break:break-all">${liveUrl}</div>
+            <div style="font-size:.6rem;color:var(--muted);margin-top:4px">⏱ Allow ~30s for Vercel to finish deploying before opening</div>
           </div>
-          <a href="${liveUrl}" target="_blank" id="launch-btn" style="font-family:Syne,sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--bg);background:var(--green);padding:10px 20px;text-decoration:none;white-space:nowrap;flex-shrink:0;transition:opacity .2s">↗ Open Live Site</a>
+          <button onclick="openLiveSite('${liveUrl}')" id="launch-btn" style="font-family:Syne,sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--bg);background:var(--green);border:none;padding:10px 20px;white-space:nowrap;flex-shrink:0;cursor:none;transition:opacity .2s">↗ Open Live Site</button>
         </div>` : '';
 
       // Build preview: prefer srcdoc (HTML), fallback to src (URL), fallback to message
@@ -801,11 +802,13 @@ Return exactly this JSON:
         previewHtml = '<div style="padding:40px;text-align:center;color:var(--muted)">No preview available</div>';
       }
 
-      // Action buttons
+      // Action buttons — "Open in New Tab" always uses local HTML (instant, no Vercel wait)
       const downloadBtn = html ? `<button class="btn-action primary" onclick="downloadSite()">⬇ Download HTML</button>` : '';
-      const newTabBtn = liveUrl
-        ? `<a href="${liveUrl}" target="_blank" class="btn-action" style="text-decoration:none;text-align:center">↗ Open in New Tab</a>`
-        : `<button class="btn-action" onclick="openSiteTab()" ${!html ? 'disabled' : ''}>↗ Open in New Tab</button>`;
+      const newTabBtn = html
+        ? `<button class="btn-action" onclick="openSiteTab()">↗ Open in New Tab</button>`
+        : liveUrl
+          ? `<a href="${liveUrl}" target="_blank" class="btn-action" style="text-decoration:none;text-align:center">↗ Open in New Tab</a>`
+          : `<button class="btn-action" disabled>↗ Open in New Tab</button>`;
 
       setOutput(`
         <div class="result-section">
@@ -845,6 +848,16 @@ Return exactly this JSON:
       const w = window.open();
       w.document.write(window._generatedHTML);
       w.document.close();
+    }
+
+    function openLiveSite(url) {
+      // Show a toast about Vercel deploy time, then open
+      const toast = document.createElement('div');
+      toast.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#0d0d20;border:1px solid rgba(0,255,136,.3);color:#eeeef8;font-family:Syne,sans-serif;font-size:.78rem;padding:13px 22px;z-index:9999;display:flex;align-items:center;gap:10px;box-shadow:0 4px 32px rgba(0,0,0,.6);white-space:nowrap;animation:fadeInUp .25s ease;';
+      toast.innerHTML = '<span style="color:var(--green)">⏱</span> Opening — if you see a 404, wait ~30s for Vercel to deploy and retry.';
+      document.body.appendChild(toast);
+      setTimeout(() => { toast.style.opacity='0'; toast.style.transition='opacity .4s'; setTimeout(()=>toast.remove(),400); }, 4000);
+      window.open(url, '_blank');
     }
 
     // ── SAVE TO PROJECT ──
